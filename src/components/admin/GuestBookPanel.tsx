@@ -15,7 +15,11 @@ import {
 import { loadWishes, type Wish } from "../../lib/wishes";
 import { Card } from "./fields";
 
-/* ----------------------------- ekspor CSV ---------------------------- */
+/* ======================== EKSPOR EXCEL (.xlsx via HTML table) ========================
+   Trik: simpan sebagai .xls dengan konten HTML table — Excel membacanya langsung rapi
+   tanpa masalah separator, tanpa dialog impor, semua kolom terbaca bersih.
+   Hanya 4 kolom: No | Nama Tamu | Konfirmasi Kehadiran | Jumlah Orang
+   ==================================================================================== */
 
 const ATTEND_LABEL: Record<Wish["attend"], string> = {
   hadir: "Hadir",
@@ -23,102 +27,115 @@ const ATTEND_LABEL: Record<Wish["attend"], string> = {
   tidak: "Berhalangan",
 };
 
-/** sel CSV: selalu dikutip agar aman dari koma/titik koma/kutip di teks */
-function csvCell(v: string | number): string {
-  return `"${String(v).replace(/"/g, '""')}"`;
+const ATTEND_COLOR: Record<Wish["attend"], string> = {
+  hadir: "#d4edda",   // hijau muda
+  ragu:  "#fff3cd",   // kuning muda
+  tidak: "#f8d7da",   // merah muda
+};
+
+function esc(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
-function fmtDate(ts?: number): string {
-  if (!ts) return "-";
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
-    .format(new Date(ts))
-    .replace(/\./g, ":");
-}
-
-function exportGuestsCsv(guests: InviteGuest[], settings: InvitationSettings) {
+function exportGuestsExcel(guests: InviteGuest[], settings: InvitationSettings) {
+  // ambil data RSVP yang tersimpan di perangkat ini, cocokkan berdasar nama
   const wishes = loadWishes();
   const byName = new Map<string, Wish>();
   for (const w of wishes) byName.set(w.name.trim().toLowerCase(), w);
 
-  const header = [
-    "No",
-    "Nama Tamu",
-    "Nomor WhatsApp",
-    "Status Undangan",
-    "Waktu Kirim WA",
-    "Konfirmasi Kehadiran",
-    "Jumlah Orang",
-    "Ucapan & Doa",
-    "Tautan Undangan",
-  ];
-
-  const rows: string[][] = [];
-  let no = 0;
-  const matched = new Set<string>();
-
-  // 1) tamu dari buku tamu + status RSVP-nya (bila sudah mengisi)
-  for (const g of guests) {
+  // hitung ringkasan untuk baris footer
+  const hadirRsvp = guests.filter((g) => {
     const w = byName.get(g.name.trim().toLowerCase());
-    if (w) matched.add(w.name.trim().toLowerCase());
-    rows.push([
-      String(++no),
-      g.name,
-      g.phone || "-",
-      g.sentAt ? "Terkirim via WA" : "Belum Dikirim",
-      fmtDate(g.sentAt),
-      w ? ATTEND_LABEL[w.attend] : "Belum Konfirmasi",
-      w && w.attend === "hadir" ? String(w.count ?? 1) : "-",
-      w ? w.message : "-",
-      buildInviteLink(g.name),
-    ]);
-  }
+    return w?.attend === "hadir";
+  });
+  const totalPax = hadirRsvp.reduce((sum, g) => {
+    const w = byName.get(g.name.trim().toLowerCase());
+    return sum + (w?.count ?? 1);
+  }, 0);
+  const belumKonfirmasi = guests.filter((g) => !byName.has(g.name.trim().toLowerCase())).length;
 
-  // 2) RSVP yang masuk dari nama di luar daftar tamu
-  for (const w of wishes) {
-    const key = w.name.trim().toLowerCase();
-    if (matched.has(key)) continue;
-    rows.push([
-      String(++no),
-      `${w.name} (langsung RSVP)`,
-      "-",
-      "-",
-      "-",
-      ATTEND_LABEL[w.attend],
-      w.attend === "hadir" ? String(w.count ?? 1) : "-",
-      w.message,
-      "-",
-    ]);
-  }
+  /* ---------- bangun HTML table ---------- */
+  const th = (txt: string, extra = "") =>
+    `<th style="background:#35412d;color:#d9c193;font-family:Calibri,Arial,sans-serif;font-size:11pt;padding:8px 12px;border:1px solid #262f20;white-space:nowrap;${extra}">${esc(txt)}</th>`;
 
-  // ringkasan di baris akhir
-  const hadirCount = wishes.filter((w) => w.attend === "hadir").length;
-  const pax = wishes
-    .filter((w) => w.attend === "hadir")
-    .reduce((sum, w) => sum + (w.count ?? 1), 0);
-  rows.push([]);
-  rows.push(["", `RINGKASAN — ${settings.bride.short} & ${settings.groom.short}`, "", "", "", "", "", "", ""]);
-  rows.push(["", "Total tamu terdaftar", String(guests.length), "", "", "", "", "", ""]);
-  rows.push(["", "Terkirim via WA", String(guests.filter((g) => g.sentAt).length), "", "", "", "", "", ""]);
-  rows.push(["", "Konfirmasi hadir", String(hadirCount), "", "", "", "", "", ""]);
-  rows.push(["", "Perkiraan jumlah tamu hadir", `${pax} orang`, "", "", "", "", "", ""]);
+  const td = (txt: string, extra = "") =>
+    `<td style="font-family:Calibri,Arial,sans-serif;font-size:10pt;padding:7px 12px;border:1px solid #d0cbb8;vertical-align:middle;${extra}">${esc(txt)}</td>`;
 
-  const body = [header, ...rows]
-    .map((r) => (r.length === 0 ? "" : r.map(csvCell).join(";")))
-    .join("\r\n");
+  const headerRow = `<tr>${th("No", "text-align:center;width:40px")}${th("Nama Tamu", "width:220px")}${th("Konfirmasi Kehadiran", "width:160px;text-align:center")}${th("Jumlah Orang", "width:100px;text-align:center")}</tr>`;
 
-  // BOM agar Excel membaca UTF-8 dengan benar; pemisah ";" cocok untuk locale Indonesia
-  const blob = new Blob(["\uFEFF" + body], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
+  const dataRows = guests.map((g, i) => {
+    const w = byName.get(g.name.trim().toLowerCase());
+    const attend   = w ? ATTEND_LABEL[w.attend]  : "Belum Konfirmasi";
+    const bgColor  = w ? ATTEND_COLOR[w.attend]  : "#f5f0e5";
+    const pax      = (w?.attend === "hadir") ? String(w.count ?? 1) : "-";
+    const rowBg    = i % 2 === 0 ? "#fdfaf4" : "#f5f0e5";
+
+    return `<tr>
+      ${td(String(i + 1), `background:${rowBg};text-align:center;color:#666`)}
+      ${td(g.name, `background:${rowBg};font-weight:600;color:#35412d`)}
+      ${td(attend, `background:${bgColor};text-align:center;font-weight:600;color:#2d2d2d`)}
+      ${td(pax,    `background:${rowBg};text-align:center;color:#2d2d2d`)}
+    </tr>`;
+  }).join("\n");
+
+  // footer ringkasan — 2 baris kosong lalu tabel mini
+  const summaryRows = [
+    ["", "", "", ""],
+    ["RINGKASAN", "", "", ""],
+    [`Total tamu terdaftar`, String(guests.length), "", ""],
+    [`Sudah konfirmasi hadir`, String(hadirRsvp.length), "", ""],
+    [`Belum konfirmasi`, String(belumKonfirmasi), "", ""],
+    [`Perkiraan total tamu hadir`, `${totalPax} orang`, "", ""],
+  ].map(([a, b]) =>
+    `<tr>
+      <td style="font-family:Calibri,Arial,sans-serif;font-size:10pt;padding:5px 12px;border:none;"></td>
+      <td style="font-family:Calibri,Arial,sans-serif;font-size:10pt;padding:5px 12px;border:none;font-weight:600;color:#35412d;">${esc(a)}</td>
+      <td style="font-family:Calibri,Arial,sans-serif;font-size:10pt;padding:5px 12px;border:none;color:#333;">${esc(b)}</td>
+      <td></td>
+    </tr>`
+  ).join("\n");
+
   const stamp = new Date().toISOString().slice(0, 10);
-  a.href = url;
-  a.download = `daftar-tamu-${settings.bride.short.toLowerCase()}-${settings.groom.short.toLowerCase()}-${stamp}.csv`;
+  const title = `Daftar Tamu — ${settings.bride.short} & ${settings.groom.short} — ${stamp}`;
+
+  const html = `
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:x="urn:schemas-microsoft-com:office:excel"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+  <meta charset="UTF-8">
+  <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>
+    <x:ExcelWorksheet><x:Name>Daftar Tamu</x:Name>
+    <x:WorksheetOptions><x:Selected/></x:WorksheetOptions>
+    </x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+  <style>
+    body { font-family: Calibri, Arial, sans-serif; }
+    table { border-collapse: collapse; }
+  </style>
+</head>
+<body>
+  <p style="font-family:Calibri,Arial,sans-serif;font-size:14pt;font-weight:bold;color:#35412d;margin-bottom:12px;">
+    ${esc(title)}
+  </p>
+  <table>
+    <thead>${headerRow}</thead>
+    <tbody>
+      ${dataRows}
+      ${summaryRows}
+    </tbody>
+  </table>
+</body>
+</html>`;
+
+  const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = `daftar-tamu-${settings.bride.short.toLowerCase()}-${settings.groom.short.toLowerCase()}-${stamp}.xls`;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -388,16 +405,16 @@ export default function GuestBookPanel({ settings }: { settings: InvitationSetti
       {/* daftar tamu tersimpan */}
       <Card
         title={`Daftar Tamu Tersimpan (${guests.length})`}
-        desc="Data tidak hilang saat halaman ditutup. Kirim ulang, salin tautan, ekspor ke CSV (Excel), atau hapus kapan saja."
+        desc="Data tidak hilang saat halaman ditutup. Kirim ulang, salin tautan, ekspor ke Excel (.xls), atau hapus kapan saja."
         action={
           <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={() => exportGuestsCsv(guests, settings)}
+              onClick={() => exportGuestsExcel(guests, settings)}
               disabled={guests.length === 0}
               title="Unduh CSV berisi nama, status kirim, konfirmasi kehadiran, dan jumlah orang"
               className="inline-flex items-center gap-1.5 rounded-full bg-forest px-4 py-2 font-sans text-[9px] font-semibold uppercase tracking-[0.2em] text-cream shadow-sm transition-colors hover:bg-forest-deep disabled:cursor-not-allowed disabled:opacity-40"
             >
-              <FileSpreadsheet className="h-3 w-3 text-gold-light" /> Export CSV
+              <FileSpreadsheet className="h-3 w-3 text-gold-light" /> Export Excel
             </button>
             {guests.length > 0 && (
               <button
@@ -519,8 +536,8 @@ export default function GuestBookPanel({ settings }: { settings: InvitationSetti
           </ul>
         )}
         <p className="font-sans text-[11px] leading-relaxed text-ink/50">
-          Status hadir pada hasil export dibaca dari RSVP yang tercatat di perangkat ini (dicocokkan
-          berdasarkan nama). RSVP yang diisi tamu di perangkatnya sendiri tetap tersimpan di sana.
+          File Excel berisi: nama tamu, konfirmasi kehadiran, dan jumlah orang — data RSVP
+          dicocokkan berdasarkan nama dari form ucapan di perangkat ini.
         </p>
       </Card>
     </>
