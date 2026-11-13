@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Send, Copy, Check, Trash2, ExternalLink, Users, Info, Link2,
   MessageCircleHeart, RotateCcw, UserRound, ClipboardList, CalendarClock,
+  FileSpreadsheet,
 } from "lucide-react";
 import type { InvitationSettings } from "../../lib/settings";
 import {
@@ -11,7 +12,118 @@ import {
   getWaTemplate, saveWaTemplate, DEFAULT_WA_TEMPLATE, WA_PLACEHOLDERS,
   type InviteGuest,
 } from "../../lib/guestBook";
+import { loadWishes, type Wish } from "../../lib/wishes";
 import { Card } from "./fields";
+
+/* ----------------------------- ekspor CSV ---------------------------- */
+
+const ATTEND_LABEL: Record<Wish["attend"], string> = {
+  hadir: "Hadir",
+  ragu: "InsyaAllah Hadir",
+  tidak: "Berhalangan",
+};
+
+/** sel CSV: selalu dikutip agar aman dari koma/titik koma/kutip di teks */
+function csvCell(v: string | number): string {
+  return `"${String(v).replace(/"/g, '""')}"`;
+}
+
+function fmtDate(ts?: number): string {
+  if (!ts) return "-";
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+    .format(new Date(ts))
+    .replace(/\./g, ":");
+}
+
+function exportGuestsCsv(guests: InviteGuest[], settings: InvitationSettings) {
+  const wishes = loadWishes();
+  const byName = new Map<string, Wish>();
+  for (const w of wishes) byName.set(w.name.trim().toLowerCase(), w);
+
+  const header = [
+    "No",
+    "Nama Tamu",
+    "Nomor WhatsApp",
+    "Status Undangan",
+    "Waktu Kirim WA",
+    "Konfirmasi Kehadiran",
+    "Jumlah Orang",
+    "Ucapan & Doa",
+    "Tautan Undangan",
+  ];
+
+  const rows: string[][] = [];
+  let no = 0;
+  const matched = new Set<string>();
+
+  // 1) tamu dari buku tamu + status RSVP-nya (bila sudah mengisi)
+  for (const g of guests) {
+    const w = byName.get(g.name.trim().toLowerCase());
+    if (w) matched.add(w.name.trim().toLowerCase());
+    rows.push([
+      String(++no),
+      g.name,
+      g.phone || "-",
+      g.sentAt ? "Terkirim via WA" : "Belum Dikirim",
+      fmtDate(g.sentAt),
+      w ? ATTEND_LABEL[w.attend] : "Belum Konfirmasi",
+      w && w.attend === "hadir" ? String(w.count ?? 1) : "-",
+      w ? w.message : "-",
+      buildInviteLink(g.name),
+    ]);
+  }
+
+  // 2) RSVP yang masuk dari nama di luar daftar tamu
+  for (const w of wishes) {
+    const key = w.name.trim().toLowerCase();
+    if (matched.has(key)) continue;
+    rows.push([
+      String(++no),
+      `${w.name} (langsung RSVP)`,
+      "-",
+      "-",
+      "-",
+      ATTEND_LABEL[w.attend],
+      w.attend === "hadir" ? String(w.count ?? 1) : "-",
+      w.message,
+      "-",
+    ]);
+  }
+
+  // ringkasan di baris akhir
+  const hadirCount = wishes.filter((w) => w.attend === "hadir").length;
+  const pax = wishes
+    .filter((w) => w.attend === "hadir")
+    .reduce((sum, w) => sum + (w.count ?? 1), 0);
+  rows.push([]);
+  rows.push(["", `RINGKASAN — ${settings.bride.short} & ${settings.groom.short}`, "", "", "", "", "", "", ""]);
+  rows.push(["", "Total tamu terdaftar", String(guests.length), "", "", "", "", "", ""]);
+  rows.push(["", "Terkirim via WA", String(guests.filter((g) => g.sentAt).length), "", "", "", "", "", ""]);
+  rows.push(["", "Konfirmasi hadir", String(hadirCount), "", "", "", "", "", ""]);
+  rows.push(["", "Perkiraan jumlah tamu hadir", `${pax} orang`, "", "", "", "", "", ""]);
+
+  const body = [header, ...rows]
+    .map((r) => (r.length === 0 ? "" : r.map(csvCell).join(";")))
+    .join("\r\n");
+
+  // BOM agar Excel membaca UTF-8 dengan benar; pemisah ";" cocok untuk locale Indonesia
+  const blob = new Blob(["\uFEFF" + body], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const stamp = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `daftar-tamu-${settings.bride.short.toLowerCase()}-${settings.groom.short.toLowerCase()}-${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
 
 async function copyText(text: string): Promise<boolean> {
   try {
@@ -276,19 +388,29 @@ export default function GuestBookPanel({ settings }: { settings: InvitationSetti
       {/* daftar tamu tersimpan */}
       <Card
         title={`Daftar Tamu Tersimpan (${guests.length})`}
-        desc="Data tidak hilang saat halaman ditutup. Kirim ulang, salin tautan, atau hapus kapan saja."
+        desc="Data tidak hilang saat halaman ditutup. Kirim ulang, salin tautan, ekspor ke CSV (Excel), atau hapus kapan saja."
         action={
-          guests.length > 0 ? (
+          <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={() => {
-                if (window.confirm(`Hapus SEMUA ${guests.length} data tamu dari perangkat ini?`))
-                  clearGuestBook();
-              }}
-              className="inline-flex items-center gap-1.5 rounded-full border border-rose/50 px-4 py-2 font-sans text-[9px] font-semibold uppercase tracking-[0.2em] text-rose transition-colors hover:bg-rose hover:text-cream"
+              onClick={() => exportGuestsCsv(guests, settings)}
+              disabled={guests.length === 0}
+              title="Unduh CSV berisi nama, status kirim, konfirmasi kehadiran, dan jumlah orang"
+              className="inline-flex items-center gap-1.5 rounded-full bg-forest px-4 py-2 font-sans text-[9px] font-semibold uppercase tracking-[0.2em] text-cream shadow-sm transition-colors hover:bg-forest-deep disabled:cursor-not-allowed disabled:opacity-40"
             >
-              <Trash2 className="h-3 w-3" /> Hapus Semua
+              <FileSpreadsheet className="h-3 w-3 text-gold-light" /> Export CSV
             </button>
-          ) : undefined
+            {guests.length > 0 && (
+              <button
+                onClick={() => {
+                  if (window.confirm(`Hapus SEMUA ${guests.length} data tamu dari perangkat ini?`))
+                    clearGuestBook();
+                }}
+                className="inline-flex items-center gap-1.5 rounded-full border border-rose/50 px-4 py-2 font-sans text-[9px] font-semibold uppercase tracking-[0.2em] text-rose transition-colors hover:bg-rose hover:text-cream"
+              >
+                <Trash2 className="h-3 w-3" /> Hapus Semua
+              </button>
+            )}
+          </div>
         }
       >
         {guests.length === 0 ? (
@@ -396,6 +518,10 @@ export default function GuestBookPanel({ settings }: { settings: InvitationSetti
             </AnimatePresence>
           </ul>
         )}
+        <p className="font-sans text-[11px] leading-relaxed text-ink/50">
+          Status hadir pada hasil export dibaca dari RSVP yang tercatat di perangkat ini (dicocokkan
+          berdasarkan nama). RSVP yang diisi tamu di perangkatnya sendiri tetap tersimpan di sana.
+        </p>
       </Card>
     </>
   );

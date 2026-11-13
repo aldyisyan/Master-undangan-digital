@@ -24,6 +24,7 @@ import { loadWishes, saveWishes, wipeWishes, restoreSeedWishes, type Wish } from
 import Code from "../components/Code";
 import { Field, Area, Card, ImagePicker, AudioPicker } from "../components/admin/fields";
 import GuestBookPanel from "../components/admin/GuestBookPanel";
+import GalleryManager from "../components/admin/GalleryManager";
 import { Wreath } from "../components/Ornament";
 
 const SESSION_KEY = "rk-admin-auth";
@@ -90,7 +91,7 @@ function PinGate({ expected, onSuccess }: { expected: string; onSuccess: () => v
         {expected === DEFAULT_SETTINGS.adminPin ? (
           <p className="mt-6 font-sans text-[11px] leading-relaxed tracking-wide text-cream/45">
             PIN bawaan: <span className="font-semibold text-gold-light">140626</span> (tanggal
-            pernikahan, format ddmmyy) — segera ganti di tab Musik &amp; PIN setelah masuk.
+            pernikahan, format ddmmyy) — segera ganti di tab Audio &amp; PIN setelah masuk.
           </p>
         ) : (
           <p className="mt-6 font-sans text-[11px] leading-relaxed tracking-wide text-cream/45">
@@ -120,7 +121,7 @@ const TABS = [
   { id: "tamu", label: "Tamu & WA", icon: Send },
   { id: "ucapan", label: "Ucapan", icon: MessageCircleHeart },
   { id: "sinkro", label: "Sinkronisasi", icon: CloudUpload },
-  { id: "musik", label: "Musik & PIN", icon: Music4 },
+  { id: "musik", label: "Audio & PIN", icon: Music4 },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -158,6 +159,47 @@ function ColorField({
         />
       </span>
     </label>
+  );
+}
+
+/* ---------- saklar on/off ---------- */
+
+function Toggle({
+  checked,
+  onChange,
+  labelOn,
+  labelOff,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  labelOn: string;
+  labelOff: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`inline-flex items-center gap-3 rounded-full border px-2 py-2 pr-5 transition-colors ${
+        checked ? "border-gold bg-forest text-cream" : "border-gold/30 bg-cream text-ink/60"
+      }`}
+    >
+      <span
+        className={`relative h-6 w-11 rounded-full transition-colors ${
+          checked ? "bg-gold" : "bg-ink/15"
+        }`}
+      >
+        <span
+          className={`absolute top-0.5 h-5 w-5 rounded-full bg-cream shadow transition-all ${
+            checked ? "left-[1.375rem]" : "left-0.5"
+          }`}
+        />
+      </span>
+      <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em]">
+        {checked ? labelOn : labelOff}
+      </span>
+    </button>
   );
 }
 
@@ -646,6 +688,16 @@ export default function AdminPage() {
                 shapeClass="rounded-2xl"
               />
             </Card>
+
+            <Card
+              title="Galeri Foto Prawedding"
+              desc="Koleksi foto yang tampil sebagai bagian Galeri di undangan — tepat setelah profil mempelai. Bisa diisi banyak foto sekaligus."
+            >
+              <GalleryManager
+                value={draft.gallery}
+                onChange={(v) => patch({ gallery: v })}
+              />
+            </Card>
           </>
         )}
 
@@ -848,6 +900,13 @@ export default function AdminPage() {
               <span className="inline-flex items-center gap-2 rounded-full bg-forest px-4 py-2 font-sans text-[11px] font-medium uppercase tracking-widest text-cream">
                 Total: {wishes.length}
               </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-gold bg-gold/15 px-4 py-2 font-sans text-[11px] font-semibold uppercase tracking-widest text-gold-dark">
+                Perkiraan tamu hadir:{" "}
+                {wishes
+                  .filter((w) => w.attend === "hadir")
+                  .reduce((sum, w) => sum + (w.count ?? 1), 0)}{" "}
+                orang
+              </span>
             </div>
 
             <div className="max-h-80 space-y-3 overflow-y-auto pr-1">
@@ -862,11 +921,16 @@ export default function AdminPage() {
                   className="flex items-start justify-between gap-3 rounded-xl border border-gold/25 bg-cream px-4 py-3"
                 >
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="font-serif text-sm font-semibold text-forest">{w.name}</span>
                       <span className="rounded-full bg-gold/15 px-2 py-0.5 font-sans text-[9px] uppercase tracking-widest text-gold-dark">
                         {w.attend === "hadir" ? "Hadir" : w.attend === "ragu" ? "InsyaAllah" : "Berhalangan"}
                       </span>
+                      {w.attend === "hadir" && w.count ? (
+                        <span className="rounded-full bg-sage/15 px-2 py-0.5 font-sans text-[9px] uppercase tracking-widest text-forest">
+                          {w.count >= 6 ? "6+" : w.count} orang
+                        </span>
+                      ) : null}
                     </div>
                     <p className="mt-1 font-serif text-sm italic leading-relaxed text-ink/70">{w.message}</p>
                   </div>
@@ -1119,7 +1183,7 @@ create policy "hapus anon" on storage.objects
           </>
         )}
 
-        {/* ================= TAB: MUSIK & PIN ================= */}
+        {/* ================= TAB: AUDIO & PIN ================= */}
         {tab === "musik" && (
           <>
             <Card title="Backsound Musik" desc="Diputar otomatis setelah tamu menekan tombol Buka Undangan.">
@@ -1133,6 +1197,67 @@ create policy "hapus anon" on storage.objects
                 hint="Lagu instrumental lembut berdurasi 2–4 menit adalah pilihan ideal."
               />
             </Card>
+
+            <Card
+              title="Voice Note"
+              desc="Pesan suara khusus dari kalian berdua untuk para tamu. Bila dimatikan, seluruh bagian ini hilang dari undangan."
+              action={
+                <Toggle
+                  checked={draft.voiceNote.enabled}
+                  onChange={(v) =>
+                    setDraft((d) => ({ ...d, voiceNote: { ...d.voiceNote, enabled: v } }))
+                  }
+                  labelOn="Ditampilkan"
+                  labelOff="Disembunyikan"
+                />
+              }
+            >
+              {draft.voiceNote.enabled ? (
+                <>
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <Field
+                      label="Judul Voice Note"
+                      value={draft.voiceNote.title}
+                      onChange={(v) =>
+                        setDraft((d) => ({ ...d, voiceNote: { ...d.voiceNote, title: v } }))
+                      }
+                    />
+                    <Field
+                      label="Subjudul / Petunjuk"
+                      value={draft.voiceNote.hint}
+                      onChange={(v) =>
+                        setDraft((d) => ({ ...d, voiceNote: { ...d.voiceNote, hint: v } }))
+                      }
+                    />
+                  </div>
+                  <AudioPicker
+                    label="File Rekaman Suara"
+                    value={draft.voiceNote.src}
+                    onChange={(v) =>
+                      setDraft((d) => ({ ...d, voiceNote: { ...d.voiceNote, src: v } }))
+                    }
+                    mediaKey="voice-note"
+                    defaultValue={DEFAULT_SETTINGS.voiceNote.src}
+                    accept="audio/*"
+                    hint="Rekam pesan suara Anda (mp3/m4a/wav) lalu unggah di sini — menggantikan melodi placeholder."
+                  />
+                  <Area
+                    label="Transkrip Singkat"
+                    rows={3}
+                    value={draft.voiceNote.transcript}
+                    onChange={(v) =>
+                      setDraft((d) => ({ ...d, voiceNote: { ...d.voiceNote, transcript: v } }))
+                    }
+                  />
+                </>
+              ) : (
+                <p className="rounded-xl border border-dashed border-gold/35 bg-cream/60 px-5 py-6 text-center font-serif text-sm italic text-ink/55">
+                  Voice note sedang disembunyikan — tamu tidak akan melihat bagian ini sama sekali.
+                  Aktifkan kembali kapan saja.
+                </p>
+              )}
+            </Card>
+
             <Card title="Keamanan" desc="PIN ini melindungi panel admin dari tamu.">
               <Field
                 label="PIN Admin"

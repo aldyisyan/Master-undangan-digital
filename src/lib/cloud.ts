@@ -171,6 +171,8 @@ function collectMediaRefs(s: InvitationSettings): string[] {
   push(s.groom.photo);
   push(s.venue.photo);
   push(s.music);
+  push(s.voiceNote?.src);
+  s.gallery?.forEach((g) => push(g));
   s.guests.forEach((g) => push(g.voiceSrc));
   return [...new Set(refs)];
 }

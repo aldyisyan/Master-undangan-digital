@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 import {
   couple as defaultCouple,
   guests as defaultGuests,
+  generalGuest,
   type GuestCategory,
 } from "../data/config";
 
@@ -53,6 +54,16 @@ export interface Palette {
 
 export type GuestPage = GuestCategory;
 
+/** Pengaturan voice note — satu untuk seluruh undangan, bisa dimatikan */
+export interface VoiceNoteSettings {
+  /** false = bagian voice note hilang total dari halaman undangan */
+  enabled: boolean;
+  src: string;
+  title: string;
+  hint: string;
+  transcript: string;
+}
+
 export interface InvitationSettings {
   /** mempelai wanita — selalu ditampilkan lebih dahulu */
   bride: PersonInfo;
@@ -71,6 +82,9 @@ export interface InvitationSettings {
   backgroundDim: number;
   quotePhoto: string;
   guests: GuestPage[];
+  voiceNote: VoiceNoteSettings;
+  /** Galeri foto prawedding — tiap entri: "/images/…" | "https://…" | "media:<key>" */
+  gallery: string[];
   adminPin: string;
   colors: Palette;
   /** id template tata letak (lihat lib/layouts.ts) */
@@ -96,6 +110,14 @@ export const DEFAULT_SETTINGS: InvitationSettings = {
   backgroundDim: 55,
   quotePhoto: "/images/couple.jpg",
   guests: defaultGuests.map((g) => ({ ...g })),
+  voiceNote: {
+    enabled: true,
+    src: generalGuest.voiceSrc,
+    title: "Pesan Suara untuk Anda",
+    hint: "Salam hangat dari kami berdua",
+    transcript: generalGuest.transcript,
+  },
+  gallery: ["/images/couple.jpg", "/images/bride.jpg", "/images/groom.jpg"],
   adminPin: "140626",
   layout: "klasik",
   fontId: "klasik",
@@ -140,6 +162,11 @@ function merge(stored: unknown): InvitationSettings {
     ...((s.guests ?? []).find((x) => x?.slug === g.slug) ?? {}),
     slug: g.slug,
   }));
+  merged.voiceNote = { ...base.voiceNote, ...(s.voiceNote ?? {}) };
+  merged.gallery =
+    Array.isArray(s.gallery) && s.gallery.every((x) => typeof x === "string")
+      ? [...(s.gallery as string[])]
+      : base.gallery;
   merged.adminPin = typeof s.adminPin === "string" && s.adminPin ? s.adminPin : base.adminPin;
   return merged;
 }

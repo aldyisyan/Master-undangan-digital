@@ -3,6 +3,8 @@
 export interface Wish {
   name: string;
   attend: "hadir" | "ragu" | "tidak";
+  /** Jumlah orang yang ikut hadir (termasuk pengisi) — hanya saat attend = "hadir" */
+  count?: number;
   message: string;
   at: number;
 }
@@ -10,8 +12,8 @@ export interface Wish {
 export const WISHES_KEY = "rk-wedding-wishes";
 
 export const seedWishes: Wish[] = [
-  { name: "Keluarga Wijaya", attend: "hadir", message: "Selamat Kirana & Rangga! Semoga menjadi keluarga sakinah, mawaddah, warahmah.", at: 1 },
-  { name: "Nadia", attend: "hadir", message: "AAA akhirnya! Nggak sabar lihat kalian di pelaminan. Bahagia selalu ya!", at: 2 },
+  { name: "Keluarga Wijaya", attend: "hadir", count: 4, message: "Selamat Kirana & Rangga! Semoga menjadi keluarga sakinah, mawaddah, warahmah.", at: 1 },
+  { name: "Nadia", attend: "hadir", count: 1, message: "AAA akhirnya! Nggak sabar lihat kalian di pelaminan. Bahagia selalu ya!", at: 2 },
   { name: "Bima & Rara", attend: "ragu", message: "Barakallahu lakuma! Semoga lancar sampai hari H. Kami usahakan hadir!", at: 3 },
 ];
 

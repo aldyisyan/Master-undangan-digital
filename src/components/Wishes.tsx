@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Send, MessageCircleHeart, CheckCircle2, XCircle, HelpCircle } from "lucide-react";
+import { Send, MessageCircleHeart, CheckCircle2, XCircle, HelpCircle, Users } from "lucide-react";
 import Section, { Reveal } from "./Section";
 import { loadWishes, saveWishes, type Wish } from "../lib/wishes";
 
@@ -10,10 +10,14 @@ const attendMeta = {
   tidak: { label: "Berhalangan", icon: XCircle, cls: "text-rose" },
 } as const;
 
+/** pilihan jumlah tamu yang ikut hadir */
+const PAX_OPTIONS = [1, 2, 3, 4, 5, 6] as const;
+
 export default function Wishes() {
   const [wishes, setWishes] = useState<Wish[]>([]);
   const [name, setName] = useState("");
   const [attend, setAttend] = useState<Wish["attend"]>("hadir");
+  const [pax, setPax] = useState<number>(1);
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
 
@@ -24,17 +28,28 @@ export default function Wishes() {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !message.trim()) return;
-    const next = [{ name: name.trim(), attend, message: message.trim(), at: Date.now() }, ...wishes];
+    const entry: Wish = {
+      name: name.trim(),
+      attend,
+      message: message.trim(),
+      at: Date.now(),
+      ...(attend === "hadir" ? { count: pax } : {}),
+    };
+    const next = [entry, ...wishes];
     setWishes(next);
     saveWishes(next);
     setName("");
     setMessage("");
     setAttend("hadir");
+    setPax(1);
     setSent(true);
     setTimeout(() => setSent(false), 2400);
   };
 
   const count = wishes.filter((w) => w.attend === "hadir").length;
+  const totalPax = wishes
+    .filter((w) => w.attend === "hadir")
+    .reduce((sum, w) => sum + (w.count ?? 1), 0);
 
   return (
     <Section
@@ -86,6 +101,44 @@ export default function Wishes() {
                 })}
               </div>
 
+              {/* jumlah orang — hanya saat konfirmasi hadir */}
+              <AnimatePresence initial={false}>
+                {attend === "hadir" && (
+                  <motion.div
+                    key="pax"
+                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                    animate={{ opacity: 1, height: "auto", marginTop: 24 }}
+                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                    transition={{ duration: 0.35, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
+                    <label className="flex items-center gap-2 font-sans text-[10px] font-semibold uppercase tracking-[0.3em] text-gold-dark">
+                      <Users className="h-3.5 w-3.5" />
+                      Jumlah yang Akan Datang
+                    </label>
+                    <div className="mt-2 grid grid-cols-6 gap-1.5">
+                      {PAX_OPTIONS.map((n) => (
+                        <button
+                          type="button"
+                          key={n}
+                          onClick={() => setPax(n)}
+                          className={`rounded-xl border px-1 py-2.5 font-sans text-xs font-semibold transition-all ${
+                            pax === n
+                              ? "border-gold bg-gold text-forest-deep shadow-md"
+                              : "border-gold/30 bg-ivory text-ink/60 hover:border-gold/60"
+                          }`}
+                        >
+                          {n === 6 ? "6+" : n}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="mt-2 font-sans text-[11px] text-ink/50">
+                      Termasuk Anda — membantu kami menyiapkan tempat &amp; konsumsi.
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               <label className="mt-6 block font-sans text-[10px] font-semibold uppercase tracking-[0.3em] text-gold-dark">
                 Ucapan &amp; Doa
               </label>
@@ -114,7 +167,7 @@ export default function Wishes() {
           <div className="flex items-center justify-between">
             <p className="inline-flex items-center gap-2 font-sans text-[11px] font-medium uppercase tracking-[0.3em] text-forest">
               <MessageCircleHeart className="h-4 w-4 text-gold-dark" />
-              {wishes.length} ucapan · {count} akan hadir
+              {wishes.length} ucapan · {count} hadir · {totalPax} orang
             </p>
           </div>
           <div className="mt-5 max-h-[26rem] space-y-4 overflow-y-auto pr-2 [scrollbar-width:thin]">
@@ -132,9 +185,17 @@ export default function Wishes() {
                   >
                     <div className="flex items-center justify-between gap-3">
                       <span className="font-serif text-base font-semibold text-forest">{w.name}</span>
-                      <span className={`inline-flex items-center gap-1.5 rounded-full border border-gold/25 bg-ivory px-3 py-1 font-sans text-[9px] font-medium uppercase tracking-widest ${M.cls}`}>
-                        <M.icon className="h-3 w-3" />
-                        {M.label}
+                      <span className="flex shrink-0 items-center gap-1.5">
+                        {w.attend === "hadir" && w.count ? (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-gold/25 bg-gold/10 px-2.5 py-1 font-sans text-[9px] font-medium uppercase tracking-widest text-gold-dark">
+                            <Users className="h-3 w-3" />
+                            {w.count >= 6 ? "6+" : `${w.count} orang`}
+                          </span>
+                        ) : null}
+                        <span className={`inline-flex items-center gap-1.5 rounded-full border border-gold/25 bg-ivory px-3 py-1 font-sans text-[9px] font-medium uppercase tracking-widest ${M.cls}`}>
+                          <M.icon className="h-3 w-3" />
+                          {M.label}
+                        </span>
                       </span>
                     </div>
                     <p className="mt-2 font-serif text-sm italic leading-relaxed text-ink/75">

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Play, Pause, Mic, Quote as QuoteIcon } from "lucide-react";
-import type { GuestPage } from "../lib/settings";
 import { useSettings } from "../lib/settings";
 import { useMediaSrc } from "../lib/mediaStore";
 import { suspendMusicForVoice, resumeMusicAfterVoice } from "../lib/music";
@@ -14,9 +13,10 @@ function fmt(sec: number) {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-export default function VoiceNote({ guest }: { guest: GuestPage }) {
+export default function VoiceNote() {
   const settings = useSettings();
-  const audioSrc = useMediaSrc(guest.voiceSrc);
+  const vn = settings.voiceNote;
+  const audioSrc = useMediaSrc(vn.src);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
@@ -25,19 +25,19 @@ export default function VoiceNote({ guest }: { guest: GuestPage }) {
   // tinggi batang waveform — deterministik agar konsisten per render
   const bars = useMemo(() => {
     const arr: number[] = [];
-    let seed = guest.slug.length * 7 + 13;
+    let seed = 97;
     for (let i = 0; i < 44; i++) {
       seed = (seed * 9301 + 49297) % 233280;
       const rnd = seed / 233280;
       arr.push(0.22 + rnd * 0.78 * (0.5 + 0.5 * Math.sin(i / 4.2)));
     }
     return arr;
-  }, [guest.slug]);
+  }, []);
 
   useEffect(() => {
     setPlaying(false);
     setTime(0);
-  }, [guest.slug, audioSrc]);
+  }, [audioSrc]);
 
   // bila tamu berpindah halaman saat pesan suara berjalan,
   // pastikan backsound tidak ikut terhenti selamanya
@@ -67,7 +67,7 @@ export default function VoiceNote({ guest }: { guest: GuestPage }) {
       id="pesan"
       label="Pesan Khusus Untukmu"
       title="Selembar Suara, Sejuta Rasa"
-      subtitle={guest.voiceHint}
+      subtitle={vn.hint}
     >
       <Reveal>
         <div className="relative mx-auto max-w-2xl">
@@ -100,7 +100,7 @@ export default function VoiceNote({ guest }: { guest: GuestPage }) {
                   </span>
                 </div>
                 <h3 className="balance mt-1.5 font-serif text-[clamp(1.3rem,5vw,1.7rem)] font-medium text-forest">
-                  {guest.voiceTitle}
+                  {vn.title}
                 </h3>
                 <p className="mt-1 font-serif text-sm italic text-ink/60">
                   dari {settings.bride.short} &amp; {settings.groom.short}
@@ -144,7 +144,7 @@ export default function VoiceNote({ guest }: { guest: GuestPage }) {
             {/* transkrip */}
             <div className="relative mt-8 rounded-2xl bg-paper/70 px-6 py-5">
               <p className="font-serif text-[15px] italic leading-relaxed text-ink/80">
-                {guest.transcript}
+                {vn.transcript}
               </p>
             </div>
 

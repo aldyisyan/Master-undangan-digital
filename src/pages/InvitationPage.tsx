@@ -9,6 +9,7 @@ import Hero from "../components/Hero";
 import Quote from "../components/Quote";
 import VoiceNote from "../components/VoiceNote";
 import Mempelai from "../components/Mempelai";
+import Gallery from "../components/Gallery";
 import Events from "../components/Events";
 import Venue from "../components/Venue";
 import Gift from "../components/Gift";
@@ -52,9 +53,10 @@ export default function InvitationPage({ guest }: { guest: GuestPage }) {
       <MusicToggle visible={opened} />
 
       <Hero guest={guest} opened={opened} />
-      <VoiceNote guest={guest} />
+      {settings.voiceNote.enabled && <VoiceNote />}
       <Quote />
       <Mempelai />
+      <Gallery />
       <Events />
       <Venue />
       <Gift />
