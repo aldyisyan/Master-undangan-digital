@@ -34,6 +34,8 @@ export default function Cover({ guest, onOpen }: Props) {
   const subTone = darkCover ? "text-cream/70" : "text-ink/70";
   const formalTone = darkCover ? "text-cream/55" : "text-ink/50";
   const dateTone = darkCover ? "text-gold-light/80" : "text-forest/80";
+  const coverMessage =
+    "Dengan penuh kebahagiaan, kami mengundang Anda untuk hadir dan menjadi bagian dari hari istimewa kami.";
 
   return (
     <motion.div
@@ -127,7 +129,7 @@ export default function Cover({ guest, onOpen }: Props) {
           transition={{ delay: 0.9, duration: 0.8 }}
           className={`balance mt-6 max-w-xs font-serif text-[clamp(0.85rem,3.3vw,0.95rem)] italic leading-relaxed ${subTone}`}
         >
-          {L.strength}
+          {coverMessage}
           <span className={`mt-3 block font-sans text-[10px] uppercase not-italic tracking-[0.35em] ${dateTone}`}>
             {s.dateLabel}
           </span>
