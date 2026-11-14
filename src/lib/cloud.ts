@@ -7,6 +7,7 @@ import type { InvitationSettings } from "./settings";
 import { replaceSettings } from "./settings";
 import { readMedia, isMediaRef } from "./mediaStore";
 import { replaceWishesFromCloud, type Wish } from "./wishes";
+import { replaceGuestBookFromCloud, loadGuestBook, type InviteGuest } from "./guestBook";
 import {
   type CloudAdmin,
   type CloudRead,
@@ -28,7 +29,18 @@ export async function fetchRemoteSettings(read: CloudRead): Promise<unknown | nu
   }
 }
 
-/* ---------------------- baca wishes dari cloud ---------------------- */
+/* ---------------------- baca data dari cloud ---------------------- */
+
+export async function fetchRemoteGuestBook(read: CloudRead): Promise<InviteGuest[] | null> {
+  try {
+    const url = `${cloudObjectURL(read, "site/guests.json")}?t=${Date.now()}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
 
 export async function fetchRemoteWishes(read: CloudRead): Promise<Wish[] | null> {
   try {
@@ -54,13 +66,15 @@ function mergeWishes(local: Wish[], remote: Wish[]): Wish[] {
 }
 
 /** Tarik pengaturan + wishes terbaru dari cloud & terapkan ke aplikasi */
+/** Tarik pengaturan + wishes + guests terbaru dari cloud & terapkan ke aplikasi */
 export async function pullFromCloud(): Promise<boolean> {
   const read = getCloudRead();
   if (!read) return false;
 
-  const [remote, remoteWishes] = await Promise.all([
+  const [remote, remoteWishes, remoteGuests] = await Promise.all([
     fetchRemoteSettings(read),
     fetchRemoteWishes(read),
+    fetchRemoteGuestBook(read),
   ]);
 
   let ok = false;
@@ -69,10 +83,13 @@ export async function pullFromCloud(): Promise<boolean> {
     ok = true;
   }
   if (remoteWishes) {
-    // merge agar ucapan lokal yang belum ter-push tidak hilang
     const { loadWishes } = await import("./wishes");
     const merged = mergeWishes(loadWishes(), remoteWishes);
     replaceWishesFromCloud(merged);
+    ok = true;
+  }
+  if (remoteGuests) {
+    replaceGuestBookFromCloud(remoteGuests);
     ok = true;
   }
   return ok;
@@ -128,6 +145,36 @@ export async function pushWishesToCloud(admin: CloudAdmin, localWishes: Wish[]):
 export async function forceReplaceWishesCloud(admin: CloudAdmin, wishes: Wish[]): Promise<boolean> {
   const json = new Blob([JSON.stringify(wishes)], { type: "application/json" });
   return uploadObject(admin, "site/wishes.json", json, "application/json; charset=utf-8");
+}
+
+/** Upload guests.json ke cloud (dipanggil setiap kali buku tamu berubah) */
+export async function pushGuestBookToCloud(admin: CloudAdmin, guests: InviteGuest[]): Promise<boolean> {
+  const json = new Blob([JSON.stringify(guests)], { type: "application/json" });
+  return uploadObject(admin, "site/guests.json", json, "application/json; charset=utf-8");
+}
+
+/** Pull data terbaru dari cloud (untuk polling di latar belakang) */
+export async function pullRemoteUpdates(): Promise<boolean> {
+  const read = getCloudRead();
+  if (!read) return false;
+
+  const [remoteWishes, remoteGuests] = await Promise.all([
+    fetchRemoteWishes(read),
+    fetchRemoteGuestBook(read),
+  ]);
+
+  let ok = false;
+  if (remoteWishes) {
+    const { loadWishes } = await import("./wishes");
+    const merged = mergeWishes(loadWishes(), remoteWishes);
+    replaceWishesFromCloud(merged);
+    ok = true;
+  }
+  if (remoteGuests) {
+    replaceGuestBookFromCloud(remoteGuests);
+    ok = true;
+  }
+  return ok;
 }
 
 /** Pull hanya wishes dari cloud (untuk polling) */
@@ -294,8 +341,8 @@ export async function syncToCloud(
   try {
     const keys = collectMediaRefs(settings);
     let done = 0;
-    // +2: settings.json + wishes.json
-    const total = keys.length + 2;
+    // +3: settings.json + wishes.json + guests.json
+    const total = keys.length + 3;
 
     for (const key of keys) {
       const blob = await readMedia(key);
@@ -306,16 +353,21 @@ export async function syncToCloud(
       onProgress?.(++done, total);
     }
 
-    // upload settings.json
+    // upload site/settings.json
     const json = new Blob([JSON.stringify(settings)], { type: "application/json" });
     const okSettings = await uploadObject(admin, "site/settings.json", json, "application/json; charset=utf-8");
     if (!okSettings) return false;
     onProgress?.(++done, total);
 
-    // upload wishes.json — import dinamis untuk hindari circular dependency
+    // upload site/wishes.json
     const { loadWishes } = await import("./wishes");
     const wishesBlob = new Blob([JSON.stringify(loadWishes())], { type: "application/json" });
     await uploadObject(admin, "site/wishes.json", wishesBlob, "application/json; charset=utf-8");
+    onProgress?.(++done, total);
+
+    // upload site/guests.json
+    const guestsBlob = new Blob([JSON.stringify(loadGuestBook())], { type: "application/json" });
+    await uploadObject(admin, "site/guests.json", guestsBlob, "application/json; charset=utf-8");
     onProgress?.(++done, total);
 
     setLastSync(new Date().toISOString());

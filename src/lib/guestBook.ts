@@ -189,6 +189,14 @@ export function clearGuestBook(): void {
   commit([]);
 }
 
+export function loadGuestBook(): InviteGuest[] {
+  return state;
+}
+
+export function replaceGuestBookFromCloud(guests: InviteGuest[]): void {
+  commit(guests);
+}
+
 export function useGuestBook(): InviteGuest[] {
   return useSyncExternalStore(
     (cb) => {

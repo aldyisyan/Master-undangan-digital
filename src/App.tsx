@@ -4,8 +4,11 @@ import { useSettings, type GuestPage } from "./lib/settings";
 import { applyPalette } from "./lib/theme";
 import { applyFonts } from "./lib/typography";
 import { applyFavicon, applyDocumentTitle } from "./lib/favicon";
-import { pullFromCloud } from "./lib/cloud";
-import { decodeCloudParam, saveCloudRead, getCloudRead } from "./lib/cloudConfig";
+import { pullFromCloud, pullRemoteUpdates } from "./lib/cloud";
+import {
+  decodeCloudParam, saveCloudRead, getCloudRead,
+  getCloudAdmin, saveCloudAdmin,
+} from "./lib/cloudConfig";
 import { generalGuest } from "./data/config";
 import InvitationPage from "./pages/InvitationPage";
 import AdminPage from "./pages/AdminPage";
@@ -40,7 +43,13 @@ export default function App() {
       const m = combined.match(/[?&]cloud=([^&]+)/);
       if (!m) return;
       const cfg = decodeCloudParam(m[1]);
-      if (cfg) saveCloudRead(cfg);
+      if (!cfg) return;
+      saveCloudRead(cfg);
+      // bila param membawa anon key, simpan juga sebagai CloudAdmin
+      // agar perangkat ini bisa push (berguna untuk admin buka di HP)
+      if (cfg.anonKey && !getCloudAdmin()) {
+        saveCloudAdmin({ url: cfg.url, bucket: cfg.bucket, anonKey: cfg.anonKey });
+      }
     };
 
     const syncNow = () => {

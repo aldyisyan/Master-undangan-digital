@@ -7,12 +7,14 @@ import {
 } from "lucide-react";
 import type { InvitationSettings } from "../../lib/settings";
 import {
-  useGuestBook, addGuest, removeGuest, markSent, clearGuestBook,
+  useGuestBook, addGuest, removeGuest, markSent, clearGuestBook, loadGuestBook,
   buildInviteLink, buildWaUrl, renderWaMessage, normalizeWaPhone,
   getWaTemplate, saveWaTemplate, DEFAULT_WA_TEMPLATE, WA_PLACEHOLDERS,
   type InviteGuest,
 } from "../../lib/guestBook";
 import { loadWishes, type Wish } from "../../lib/wishes";
+import { getWritableCloud } from "../../lib/cloudConfig";
+import { pushGuestBookToCloud } from "../../lib/cloud";
 import { Card } from "./fields";
 
 /* ====================== EKSPOR EXCEL ASLI (.xlsx) ======================
@@ -143,7 +145,7 @@ export default function GuestBookPanel({ settings }: { settings: InvitationSetti
     }
   };
 
-  const handleSend = (g: InviteGuest, message?: string) => {
+  const handleSend = async (g: InviteGuest, message?: string) => {
     const msg =
       message ??
       renderWaMessage(template, {
@@ -154,23 +156,31 @@ export default function GuestBookPanel({ settings }: { settings: InvitationSetti
         lokasi: settings.venue.name,
       });
     markSent(g.id);
+    const writable = getWritableCloud();
+    if (writable) {
+      await pushGuestBookToCloud(writable, loadGuestBook()).catch(() => {});
+    }
     window.open(buildWaUrl(g.phone, msg), "_blank", "noopener");
   };
 
   const handleSaveCopy = async () => {
     if (!valid) return;
     const g = addGuest(name, phone);
+    const writable = getWritableCloud();
+    if (writable) {
+      await pushGuestBookToCloud(writable, loadGuestBook()).catch(() => {});
+    }
     await handleCopy(g);
     flashAdded(g.id);
     setName("");
     setPhone("");
   };
 
-  const handleSaveSend = () => {
+  const handleSaveSend = async () => {
     if (!valid) return;
     const g = addGuest(name, phone);
     flashAdded(g.id);
-    handleSend(g, previewMsg);
+    await handleSend(g, previewMsg);
     setName("");
     setPhone("");
   };
@@ -460,8 +470,14 @@ export default function GuestBookPanel({ settings }: { settings: InvitationSetti
                         <ExternalLink className="h-3.5 w-3.5" />
                       </a>
                       <button
-                        onClick={() => {
-                          if (window.confirm(`Hapus undangan untuk ${g.name}?`)) removeGuest(g.id);
+                        onClick={async () => {
+                          if (window.confirm(`Hapus undangan untuk ${g.name}?`)) {
+                            removeGuest(g.id);
+                            const writable = getWritableCloud();
+                            if (writable) {
+                              await pushGuestBookToCloud(writable, loadGuestBook()).catch(() => {});
+                            }
+                          }
                         }}
                         title="Hapus tamu"
                         className="inline-flex items-center justify-center rounded-full border border-rose/50 p-2 text-rose transition-colors hover:bg-rose hover:text-cream"

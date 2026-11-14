@@ -1219,15 +1219,40 @@ create policy "hapus anon" on storage.objects
 
                 <div>
                   <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.25em] text-gold-dark">
-                    Tautan undangan dengan penanda cloud (contoh)
+                    Link Admin untuk HP / Perangkat Lain
+                  </p>
+                  <p className="mt-1 font-sans text-[11px] leading-relaxed text-ink/55">
+                    Buka link ini di HP atau laptop lain — <span className="font-semibold text-forest">otomatis
+                    terhubung ke cloud tanpa perlu setup ulang</span>. Data undangan, ucapan, dan
+                    semua pengaturan langsung sinkron.
+                  </p>
+                  <p className="mt-2 break-all rounded-xl bg-forest/10 px-4 py-3 font-mono text-[11px] text-forest">
+                    {`${window.location.origin}${window.location.pathname}#/admin?cloud=${encodeURIComponent(`${cloudAdmin.url}|${cloudAdmin.bucket}|${cloudAdmin.anonKey}`)}`}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const link = `${window.location.origin}${window.location.pathname}#/admin?cloud=${encodeURIComponent(`${cloudAdmin.url}|${cloudAdmin.bucket}|${cloudAdmin.anonKey}`)}`;
+                        navigator.clipboard?.writeText(link).catch(() => {});
+                      }}
+                      className="inline-flex items-center gap-2 rounded-full bg-forest px-5 py-2.5 font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-cream transition-colors hover:bg-forest-deep"
+                    >
+                      Salin Link Admin
+                    </button>
+                  </div>
+                </div>
+
+                <div className="border-t border-gold/20 pt-5">
+                  <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.25em] text-gold-dark">
+                    Tautan Tamu (contoh)
                   </p>
                   <p className="mt-2 break-all rounded-xl bg-paper/70 px-4 py-3 font-mono text-[11px] text-ink/70">
                     {buildInviteLink("Nama Tamu")}
                   </p>
                   <p className="mt-2 font-sans text-[11px] leading-relaxed text-ink/55">
-                    Selama cloud terhubung, setiap tautan yang dibuat di tab{" "}
-                    <span className="font-semibold text-forest">Tamu &amp; WA</span> otomatis
-                    membawa penanda cloud — HP tamu memuat versi terbaru Anda, termasuk voice note.
+                    Setiap tautan dari tab <span className="font-semibold text-forest">Tamu &amp; WA</span>{" "}
+                    otomatis membawa penanda cloud.
                   </p>
                 </div>
 
