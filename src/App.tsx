@@ -4,8 +4,8 @@ import { useSettings, type GuestPage } from "./lib/settings";
 import { applyPalette } from "./lib/theme";
 import { applyFonts } from "./lib/typography";
 import { applyFavicon, applyDocumentTitle } from "./lib/favicon";
-import { pullFromCloud } from "./lib/cloud";
-import { decodeCloudParam, saveCloudRead } from "./lib/cloudConfig";
+import { pullFromCloud, pullWishesOnly } from "./lib/cloud";
+import { decodeCloudParam, saveCloudRead, getCloudRead } from "./lib/cloudConfig";
 import { generalGuest } from "./data/config";
 import InvitationPage from "./pages/InvitationPage";
 import AdminPage from "./pages/AdminPage";
@@ -32,7 +32,8 @@ export default function App() {
 
   // sinkronisasi cloud:
   // 1) tangkap penanda ?cloud=… dari tautan tamu dan simpan ke perangkat ini
-  // 2) tarik pengaturan terbaru dari cloud (teks, foto, voice note)
+  // 2) tarik settings + wishes terbaru dari cloud
+  // 3) polling wishes setiap 30 detik agar ucapan tamu lain langsung tampil
   useEffect(() => {
     const m = window.location.hash.match(/[?&]cloud=([^&]+)/);
     if (m) {
@@ -40,6 +41,12 @@ export default function App() {
       if (cfg) saveCloudRead(cfg);
     }
     pullFromCloud().catch(() => {});
+
+    // polling wishes — hanya bila cloud aktif, berjalan di latar belakang
+    const timer = setInterval(() => {
+      getCloudRead() && pullWishesOnly().catch(() => {});
+    }, 30_000);
+    return () => clearInterval(timer);
   }, []);
 
   // ========================= 2 HALAMAN SAJA =========================

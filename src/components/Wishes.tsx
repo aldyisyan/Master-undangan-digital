@@ -1,52 +1,61 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Send, MessageCircleHeart, CheckCircle2, XCircle, HelpCircle, Users } from "lucide-react";
 import Section, { Reveal } from "./Section";
-import { loadWishes, saveWishes, type Wish } from "../lib/wishes";
+import { useWishes, addWish, type Wish } from "../lib/wishes";
+import { getCloudAdmin } from "../lib/cloudConfig";
+import { pushWishesToCloud } from "../lib/cloud";
 
 const attendMeta = {
-  hadir: { label: "Hadir", icon: CheckCircle2, cls: "text-forest" },
-  ragu: { label: "InsyaAllah", icon: HelpCircle, cls: "text-gold-dark" },
-  tidak: { label: "Berhalangan", icon: XCircle, cls: "text-rose" },
+  hadir:  { label: "Hadir",        icon: CheckCircle2, cls: "text-forest"    },
+  ragu:   { label: "InsyaAllah",   icon: HelpCircle,   cls: "text-gold-dark" },
+  tidak:  { label: "Berhalangan",  icon: XCircle,       cls: "text-rose"      },
 } as const;
 
-/** pilihan jumlah tamu yang ikut hadir */
 const PAX_OPTIONS = [1, 2, 3, 4, 5, 6] as const;
 
 export default function Wishes() {
-  const [wishes, setWishes] = useState<Wish[]>([]);
-  const [name, setName] = useState("");
-  const [attend, setAttend] = useState<Wish["attend"]>("hadir");
-  const [pax, setPax] = useState<number>(1);
+  const wishes   = useWishes();           // reaktif — update dari mana pun langsung tampil
+  const [name,    setName]    = useState("");
+  const [attend,  setAttend]  = useState<Wish["attend"]>("hadir");
+  const [pax,     setPax]     = useState<number>(1);
   const [message, setMessage] = useState("");
-  const [sent, setSent] = useState(false);
+  const [sent,    setSent]    = useState(false);
+  const [sending, setSending] = useState(false);
 
-  useEffect(() => {
-    setWishes(loadWishes());
-  }, []);
-
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !message.trim()) return;
+    if (!name.trim() || !message.trim() || sending) return;
+    setSending(true);
+
     const entry: Wish = {
-      name: name.trim(),
+      name:    name.trim(),
       attend,
       message: message.trim(),
-      at: Date.now(),
+      at:      Date.now(),
       ...(attend === "hadir" ? { count: pax } : {}),
     };
-    const next = [entry, ...wishes];
-    setWishes(next);
-    saveWishes(next);
+
+    // 1) simpan ke store lokal + localStorage (langsung tampil)
+    addWish(entry);
+
+    // 2) push ke Supabase bila cloud aktif
+    const admin = getCloudAdmin();
+    if (admin) {
+      const { loadWishes } = await import("../lib/wishes");
+      await pushWishesToCloud(admin, loadWishes()).catch(() => {});
+    }
+
     setName("");
     setMessage("");
     setAttend("hadir");
     setPax(1);
     setSent(true);
+    setSending(false);
     setTimeout(() => setSent(false), 2400);
   };
 
-  const count = wishes.filter((w) => w.attend === "hadir").length;
+  const count    = wishes.filter((w) => w.attend === "hadir").length;
   const totalPax = wishes
     .filter((w) => w.attend === "hadir")
     .reduce((sum, w) => sum + (w.count ?? 1), 0);
@@ -101,7 +110,7 @@ export default function Wishes() {
                 })}
               </div>
 
-              {/* jumlah orang — hanya saat konfirmasi hadir */}
+              {/* jumlah orang — hanya saat hadir */}
               <AnimatePresence initial={false}>
                 {attend === "hadir" && (
                   <motion.div
@@ -152,11 +161,15 @@ export default function Wishes() {
 
               <button
                 type="submit"
-                disabled={!name.trim() || !message.trim()}
+                disabled={!name.trim() || !message.trim() || sending}
                 className="mt-6 inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-forest px-7 py-3.5 font-sans text-[11px] font-medium uppercase tracking-[0.3em] text-cream shadow-md transition-all hover:bg-forest-deep disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {sent ? <CheckCircle2 className="h-4 w-4 text-gold-light" /> : <Send className="h-4 w-4 text-gold-light" />}
-                {sent ? "Terkirim, terima kasih!" : "Kirim Ucapan"}
+                {sent ? (
+                  <CheckCircle2 className="h-4 w-4 text-gold-light" />
+                ) : (
+                  <Send className="h-4 w-4 text-gold-light" />
+                )}
+                {sending ? "Menyimpan…" : sent ? "Terkirim, terima kasih!" : "Kirim Ucapan"}
               </button>
             </div>
           </form>

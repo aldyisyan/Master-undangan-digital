@@ -6,6 +6,7 @@
 import type { InvitationSettings } from "./settings";
 import { replaceSettings } from "./settings";
 import { readMedia, isMediaRef } from "./mediaStore";
+import { replaceWishesFromCloud, type Wish } from "./wishes";
 import {
   type CloudAdmin,
   type CloudRead,
@@ -27,13 +28,56 @@ export async function fetchRemoteSettings(read: CloudRead): Promise<unknown | nu
   }
 }
 
-/** Tarik pengaturan terbaru dari cloud & terapkan ke aplikasi */
+/* ---------------------- baca wishes dari cloud ---------------------- */
+
+export async function fetchRemoteWishes(read: CloudRead): Promise<Wish[] | null> {
+  try {
+    const url = `${cloudObjectURL(read, "site/wishes.json")}?t=${Date.now()}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return Array.isArray(data) ? (data as Wish[]) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Tarik pengaturan + wishes terbaru dari cloud & terapkan ke aplikasi */
 export async function pullFromCloud(): Promise<boolean> {
   const read = getCloudRead();
   if (!read) return false;
-  const remote = await fetchRemoteSettings(read);
+
+  // pull settings & wishes secara paralel
+  const [remote, remoteWishes] = await Promise.all([
+    fetchRemoteSettings(read),
+    fetchRemoteWishes(read),
+  ]);
+
+  let ok = false;
+  if (remote) {
+    replaceSettings(remote);
+    ok = true;
+  }
+  if (remoteWishes) {
+    replaceWishesFromCloud(remoteWishes);
+    ok = true;
+  }
+  return ok;
+}
+
+/** Upload wishes.json ke cloud (dipanggil setiap kali wishes berubah) */
+export async function pushWishesToCloud(admin: CloudAdmin, wishes: Wish[]): Promise<boolean> {
+  const json = new Blob([JSON.stringify(wishes)], { type: "application/json" });
+  return uploadObject(admin, "site/wishes.json", json, "application/json; charset=utf-8");
+}
+
+/** Pull hanya wishes dari cloud (untuk polling di halaman undangan) */
+export async function pullWishesOnly(): Promise<boolean> {
+  const read = getCloudRead();
+  if (!read) return false;
+  const remote = await fetchRemoteWishes(read);
   if (!remote) return false;
-  replaceSettings(remote);
+  replaceWishesFromCloud(remote);
   return true;
 }
 
@@ -189,7 +233,8 @@ export async function syncToCloud(
   try {
     const keys = collectMediaRefs(settings);
     let done = 0;
-    const total = keys.length + 1;
+    // +2: settings.json + wishes.json
+    const total = keys.length + 2;
 
     for (const key of keys) {
       const blob = await readMedia(key);
@@ -200,11 +245,18 @@ export async function syncToCloud(
       onProgress?.(++done, total);
     }
 
+    // upload settings.json
     const json = new Blob([JSON.stringify(settings)], { type: "application/json" });
-    const ok = await uploadObject(admin, "site/settings.json", json, "application/json; charset=utf-8");
-    if (!ok) return false;
+    const okSettings = await uploadObject(admin, "site/settings.json", json, "application/json; charset=utf-8");
+    if (!okSettings) return false;
+    onProgress?.(++done, total);
 
-    onProgress?.(total, total);
+    // upload wishes.json — import dinamis untuk hindari circular dependency
+    const { loadWishes } = await import("./wishes");
+    const wishesBlob = new Blob([JSON.stringify(loadWishes())], { type: "application/json" });
+    await uploadObject(admin, "site/wishes.json", wishesBlob, "application/json; charset=utf-8");
+    onProgress?.(++done, total);
+
     setLastSync(new Date().toISOString());
     return true;
   } catch {

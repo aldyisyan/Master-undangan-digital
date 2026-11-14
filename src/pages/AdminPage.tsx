@@ -20,7 +20,10 @@ import {
   type CloudAdmin,
 } from "../lib/cloudConfig";
 import { buildInviteLink } from "../lib/guestBook";
-import { loadWishes, saveWishes, wipeWishes, restoreSeedWishes, type Wish } from "../lib/wishes";
+import {
+  useWishes, wipeWishes, restoreSeedWishes, removeWish as removeWishStore, type Wish,
+} from "../lib/wishes";
+import { pushWishesToCloud } from "../lib/cloud";
 import Code from "../components/Code";
 import { Field, Area, Card, ImagePicker, AudioPicker } from "../components/admin/fields";
 import GuestBookPanel from "../components/admin/GuestBookPanel";
@@ -220,8 +223,8 @@ export default function AdminPage() {
   const [syncing, setSyncing] = useState(false);
   const [lastSync, setLastSync] = useState(() => getLastSync());
 
-  // ---- kelola ucapan ----
-  const [wishes, setWishes] = useState<Wish[]>(() => loadWishes());
+  // ---- kelola ucapan (reaktif via store terpusat) ----
+  const wishes = useWishes();
 
   // muat seluruh font preset agar pratinjau di tab Tampilan akurat
   useEffect(() => {
@@ -233,6 +236,17 @@ export default function AdminPage() {
     link.href = `https://fonts.googleapis.com/css2?${FONT_PRESETS.map((f) => f.query).join("&")}&display=swap`;
     document.head.appendChild(link);
   }, []);
+
+  // polling wishes dari cloud setiap 15 detik agar tab Ucapan selalu fresh
+  useEffect(() => {
+    if (!cloudAdmin) return;
+    // pull sekali langsung saat admin masuk
+    import("../lib/cloud").then(({ pullWishesOnly }) => pullWishesOnly().catch(() => {}));
+    const timer = setInterval(() => {
+      import("../lib/cloud").then(({ pullWishesOnly }) => pullWishesOnly().catch(() => {}));
+    }, 15_000);
+    return () => clearInterval(timer);
+  }, [cloudAdmin]);
 
   if (!authed) {
     return <PinGate expected={getSettings().adminPin} onSuccess={() => setAuthed(true)} />;
@@ -303,22 +317,27 @@ export default function AdminPage() {
     setCloudMsg({ ok: true, text: "Cloud terputus dari perangkat ini. Tautan tamu baru tidak lagi membawa penanda cloud." });
   };
 
-  const removeWish = (w: Wish) => {
-    const next = wishes.filter((x) => !(x.at === w.at && x.name === w.name));
-    setWishes(next);
-    saveWishes(next);
-  };
-
-  const clearAllWishes = () => {
-    if (window.confirm("Hapus SEMUA ucapan & RSVP di perangkat ini?")) {
-      wipeWishes();
-      setWishes([]);
+  const removeWish = async (w: Wish) => {
+    const next = removeWishStore(w);       // update store + localStorage
+    if (cloudAdmin) {
+      await pushWishesToCloud(cloudAdmin, next).catch(() => {});
     }
   };
 
-  const seedAllWishes = () => {
+  const clearAllWishes = async () => {
+    if (!window.confirm("Hapus SEMUA ucapan & RSVP di perangkat ini?")) return;
+    wipeWishes();
+    if (cloudAdmin) {
+      await pushWishesToCloud(cloudAdmin, []).catch(() => {});
+    }
+  };
+
+  const seedAllWishes = async () => {
     restoreSeedWishes();
-    setWishes(loadWishes());
+    if (cloudAdmin) {
+      const { loadWishes } = await import("../lib/wishes");
+      await pushWishesToCloud(cloudAdmin, loadWishes()).catch(() => {});
+    }
   };
 
   const save = async () => {
@@ -879,7 +898,21 @@ export default function AdminPage() {
         {tab === "ucapan" && (
           <Card
             title="Kelola RSVP & Ucapan"
-            desc="Catatan: RSVP & ucapan disimpan di perangkat tamu yang mengisinya. Daftar ini menampilkan entri yang tercatat di perangkat Anda — berguna untuk membersihkan data uji coba."
+            desc="Ucapan tersinkron ke cloud — hapus di sini akan langsung hilang di semua perangkat. Data diperbarui otomatis setiap 15 detik."
+            action={
+              cloudAdmin ? (
+                <button
+                  onClick={() =>
+                    import("../lib/cloud").then(({ pullWishesOnly }) =>
+                      pullWishesOnly().catch(() => {}),
+                    )
+                  }
+                  className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 px-4 py-2 font-sans text-[9px] font-semibold uppercase tracking-[0.2em] text-forest transition-colors hover:bg-gold/15"
+                >
+                  <RotateCcw className="h-3 w-3" /> Refresh
+                </button>
+              ) : undefined
+            }
           >
             <div className="flex flex-wrap gap-2.5">
               {(
