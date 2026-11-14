@@ -7,14 +7,14 @@ import {
   CheckCircle2, XCircle, HelpCircle,
 } from "lucide-react";
 import {
-  DEFAULT_SETTINGS, getSettings, saveSettings, resetSettings,
+  DEFAULT_SETTINGS, getSettings, useSettings, saveSettings, resetSettings,
   type InvitationSettings, type PersonInfo, type VenueInfo, type EventItem, type GiftAccount,
 } from "../lib/settings";
 import { THEME_PRESETS, PALETTE_FIELDS } from "../lib/theme";
 import { LAYOUTS, getLayout, portraitClass } from "../lib/layouts";
 import { FONT_PRESETS } from "../lib/typography";
 import { clearMedia } from "../lib/mediaStore";
-import { testCloudConnection, syncToCloud } from "../lib/cloud";
+import { testCloudConnection, syncToCloud, pullFromCloud } from "../lib/cloud";
 import {
   getCloudAdmin, saveCloudAdmin, clearCloud, saveCloudRead, getLastSync,
   type CloudAdmin,
@@ -207,6 +207,7 @@ function Toggle({
 }
 
 export default function AdminPage() {
+  const liveSettings = useSettings();
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === "1");
   const [draft, setDraft] = useState<InvitationSettings>(() => structuredClone(getSettings()));
   const [tab, setTab] = useState<TabId>("tamu");
@@ -237,6 +238,12 @@ export default function AdminPage() {
     document.head.appendChild(link);
   }, []);
 
+  // saat panel admin dibuka, ambil settings + wishes terbaru dari cloud dulu
+  useEffect(() => {
+    if (!cloudAdmin || !authed) return;
+    pullFromCloud().catch(() => {});
+  }, [cloudAdmin, authed]);
+
   // polling wishes dari cloud setiap 15 detik agar tab Ucapan selalu fresh
   useEffect(() => {
     if (!cloudAdmin) return;
@@ -248,11 +255,21 @@ export default function AdminPage() {
     return () => clearInterval(timer);
   }, [cloudAdmin]);
 
+  // bila settings cloud berubah dan admin TIDAK sedang mengedit,
+  // ikut perbarui draft agar panel selalu menampilkan data terbaru.
+  useEffect(() => {
+    const same = JSON.stringify(draft) === JSON.stringify(liveSettings);
+    if (!same) {
+      const dirtyLocal = JSON.stringify(draft) !== JSON.stringify(getSettings());
+      if (!dirtyLocal) setDraft(structuredClone(liveSettings));
+    }
+  }, [liveSettings]);
+
   if (!authed) {
-    return <PinGate expected={getSettings().adminPin} onSuccess={() => setAuthed(true)} />;
+    return <PinGate expected={liveSettings.adminPin} onSuccess={() => setAuthed(true)} />;
   }
 
-  const dirty = JSON.stringify(draft) !== JSON.stringify(getSettings());
+  const dirty = JSON.stringify(draft) !== JSON.stringify(liveSettings);
 
   // bingkai crop mengikuti template yang sedang dipilih
   const activeLayout = getLayout(draft.layout);

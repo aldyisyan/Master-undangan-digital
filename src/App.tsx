@@ -4,7 +4,7 @@ import { useSettings, type GuestPage } from "./lib/settings";
 import { applyPalette } from "./lib/theme";
 import { applyFonts } from "./lib/typography";
 import { applyFavicon, applyDocumentTitle } from "./lib/favicon";
-import { pullFromCloud, pullWishesOnly } from "./lib/cloud";
+import { pullFromCloud } from "./lib/cloud";
 import { decodeCloudParam, saveCloudRead, getCloudRead } from "./lib/cloudConfig";
 import { generalGuest } from "./data/config";
 import InvitationPage from "./pages/InvitationPage";
@@ -31,22 +31,43 @@ export default function App() {
   }, [settings.bride.short, settings.groom.short, settings.colors]);
 
   // sinkronisasi cloud:
-  // 1) tangkap penanda ?cloud=… dari tautan tamu dan simpan ke perangkat ini
+  // 1) tangkap penanda ?cloud=… dari URL hash ATAU query biasa
   // 2) tarik settings + wishes terbaru dari cloud
-  // 3) polling wishes setiap 30 detik agar ucapan tamu lain langsung tampil
+  // 3) polling berkala + refresh saat tab aktif kembali
   useEffect(() => {
-    const m = window.location.hash.match(/[?&]cloud=([^&]+)/);
-    if (m) {
+    const captureCloudMarker = () => {
+      const combined = `${window.location.search}&${window.location.hash}`;
+      const m = combined.match(/[?&]cloud=([^&]+)/);
+      if (!m) return;
       const cfg = decodeCloudParam(m[1]);
       if (cfg) saveCloudRead(cfg);
-    }
-    pullFromCloud().catch(() => {});
+    };
 
-    // polling wishes — hanya bila cloud aktif, berjalan di latar belakang
-    const timer = setInterval(() => {
-      getCloudRead() && pullWishesOnly().catch(() => {});
-    }, 30_000);
-    return () => clearInterval(timer);
+    const syncNow = () => {
+      if (!getCloudRead()) return;
+      pullFromCloud().catch(() => {});
+    };
+
+    captureCloudMarker();
+    syncNow();
+
+    // refresh penuh berkala: settings + wishes
+    const timer = setInterval(syncNow, 12_000);
+
+    // saat user kembali membuka tab / fokus jendela, refresh lagi
+    const onVisible = () => {
+      if (document.visibilityState === "visible") syncNow();
+    };
+    const onFocus = () => syncNow();
+
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onFocus);
+
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onFocus);
+    };
   }, []);
 
   // ========================= 2 HALAMAN SAJA =========================
