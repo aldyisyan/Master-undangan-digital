@@ -21,16 +21,16 @@ function BankCard({ bank, number, holder }: { bank: string; number: string; hold
       <span className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full border border-gold-light/30" />
       <span className="pointer-events-none absolute -right-4 -top-4 h-28 w-28 rounded-full border border-gold-light/20" />
       <div className="flex items-center justify-between">
-        <span className="font-sans text-sm font-semibold tracking-[0.3em] text-gold-light">{bank}</span>
+        <span className="font-sans text-sm font-medium tracking-[0.4em] text-gold-light">{bank}</span>
         <Landmark className="h-5 w-5 text-gold-light/70" />
       </div>
-      <p className="mt-6 font-sans text-xl font-light tracking-[0.18em] text-cream sm:text-2xl">
+      <p className="mt-6 font-sans text-xl font-light tracking-[0.25em] text-cream sm:text-2xl">
         {number}
       </p>
-      <p className="mt-1.5 font-serif text-sm italic text-cream/70">a.n. {holder}</p>
+      <p className="mt-2 font-serif text-[15px] italic text-cream/70">a.n. {holder}</p>
       <button
         onClick={copy}
-        className="mt-6 inline-flex items-center gap-2 rounded-full border border-gold-light/50 px-5 py-2 font-sans text-[10px] font-medium uppercase tracking-[0.25em] text-gold-light transition-colors hover:bg-gold-light hover:text-forest"
+        className="mt-7 inline-flex items-center gap-2 rounded-full border border-gold-light/40 px-6 py-2.5 font-sans text-[10px] uppercase tracking-[0.3em] text-gold-light transition-all hover:bg-gold-light hover:text-forest"
       >
         {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
         {copied ? "Tersalin" : "Salin Nomor"}

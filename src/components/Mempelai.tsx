@@ -49,14 +49,14 @@ function PersonCard({
             )}
           </div>
         </div>
-        <div className="mt-5 text-center sm:mt-6">
-          <p className="fluid-label font-sans font-semibold uppercase tracking-[0.38em] text-gold-dark">
+        <div className="mt-6 text-center sm:mt-8">
+          <p className="fluid-label font-sans font-medium uppercase tracking-[0.55em] text-gold-dark">
             {role}
           </p>
-          <h3 className="balance mt-2 font-serif text-[clamp(1.25rem,4.6vw,1.65rem)] font-semibold text-forest">
+          <h3 className="balance mt-3 font-serif text-[clamp(1.25rem,4.6vw,1.65rem)] font-medium text-forest">
             {name}
           </h3>
-          <p className="mx-auto mt-2 max-w-[16rem] font-serif text-sm italic leading-relaxed text-ink/65">
+          <p className="mx-auto mt-3 max-w-[16rem] font-serif text-[15px] italic leading-relaxed text-ink/70">
             {parents}
           </p>
         </div>

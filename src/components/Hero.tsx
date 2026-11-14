@@ -40,7 +40,7 @@ export default function Hero({ guest, opened }: Props) {
   const Names = (
     <motion.h1 variants={item} className="font-script text-forest">
       <span className="fluid-display block break-safe">{s.bride.short}</span>
-      <span className="my-1 block font-serif text-[clamp(1.4rem,4.5vw,2.2rem)] italic text-gold">
+      <span className="my-2 block font-serif text-[clamp(1.6rem,5vw,2.5rem)] italic text-gold">
         &amp;
       </span>
       <span className="fluid-display block break-safe">{s.groom.short}</span>
@@ -114,15 +114,15 @@ export default function Hero({ guest, opened }: Props) {
         >
           <motion.p
             variants={item}
-            className="fluid-label font-sans font-medium uppercase tracking-[0.5em] text-gold-light"
+            className="fluid-label font-sans font-medium uppercase tracking-[0.6em] text-gold-light"
           >
             The Wedding Of
           </motion.p>
-          <motion.h1 variants={item} className="balance mt-4 max-w-5xl font-script text-cream">
+          <motion.h1 variants={item} className="balance mt-5 max-w-5xl font-script text-cream">
             <span className="block text-[clamp(3.8rem,17vw,9rem)] leading-[0.86] sm:inline">
               {s.bride.short}
             </span>
-            <span className="mx-3 block font-serif text-[clamp(1.5rem,5vw,3rem)] italic text-gold-light sm:inline">
+            <span className="mx-4 block font-serif text-[clamp(1.6rem,5vw,3.2rem)] italic text-gold-light sm:inline">
               &amp;
             </span>
             <span className="block text-[clamp(3.8rem,17vw,9rem)] leading-[0.86] sm:inline">
@@ -131,10 +131,10 @@ export default function Hero({ guest, opened }: Props) {
           </motion.h1>
           <motion.div
             variants={item}
-            className="mt-7 flex flex-col gap-2 border-l border-gold-light/60 pl-4 sm:flex-row sm:items-center sm:gap-6"
+            className="mt-9 flex flex-col gap-3 border-l border-gold-light/40 pl-5 sm:flex-row sm:items-center sm:gap-8"
           >
-            <p className="font-serif text-[clamp(1rem,3.8vw,1.35rem)] text-cream">{s.dateLabel}</p>
-            <p className="font-sans text-[10px] uppercase tracking-[0.28em] text-cream/65">
+            <p className="font-serif text-[clamp(1.1rem,4vw,1.5rem)] font-light tracking-wide text-cream">{s.dateLabel}</p>
+            <p className="font-sans text-[9px] uppercase tracking-[0.4em] text-cream/70">
               Untuk {guest.title}
             </p>
           </motion.div>
@@ -283,18 +283,18 @@ export default function Hero({ guest, opened }: Props) {
             <div className="mt-8">{Names}</div>
           )}
 
-          <motion.div variants={item} className="mt-9 flex w-full flex-col items-center">
+          <motion.div variants={item} className="mt-10 flex w-full flex-col items-center">
             {L.ornament === "none" ? (
-              <span className="h-px w-24 bg-gold/50" />
+              <span className="h-[0.5px] w-24 bg-gold/50" />
             ) : (
               <Divider className="w-40 opacity-80 sm:w-48" />
             )}
-            <p className="mt-4 font-serif text-[clamp(1.05rem,4vw,1.5rem)] font-medium tracking-wide text-ink">
+            <p className="mt-6 font-serif text-[clamp(1.1rem,4vw,1.5rem)] font-light tracking-wide text-ink">
               {s.dateLabel}
             </p>
-            <div className="mt-5 inline-flex max-w-full items-center gap-2 rounded-full border border-gold/40 bg-cream/70 px-4 py-2 backdrop-blur-sm sm:px-5">
+            <div className="mt-7 inline-flex max-w-full items-center gap-2.5 rounded-full border border-gold/30 bg-cream/80 px-6 py-2.5 shadow-lg backdrop-blur-md sm:px-7">
               <Heart className="h-3.5 w-3.5 shrink-0 fill-rose text-rose" />
-              <span className="fluid-label truncate font-sans uppercase tracking-[0.22em] text-forest">
+              <span className="fluid-label truncate font-sans uppercase tracking-[0.35em] text-forest">
                 Undangan untuk {guest.title}
               </span>
             </div>

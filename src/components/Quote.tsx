@@ -45,7 +45,7 @@ export default function Quote() {
             dari jenismu sendiri, agar kamu merasa tenteram kepadanya, dan Dia menjadikan di antaramu
             rasa kasih dan sayang.
           </p>
-          <p className="mt-6 font-sans text-[11px] font-semibold uppercase tracking-[0.4em] text-gold-dark">
+          <p className="mt-6 font-sans text-[11px] font-medium uppercase tracking-[0.55em] text-gold-dark">
             QS. Ar-Rum : 21
           </p>
           <p className="mt-4 max-w-md font-serif text-sm italic leading-relaxed text-ink/60 max-md:mx-auto">

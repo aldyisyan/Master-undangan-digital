@@ -42,7 +42,7 @@ export default function Venue() {
                   href={s.venue.mapsUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2.5 rounded-full bg-forest px-7 py-3 font-sans text-[11px] font-medium uppercase tracking-[0.28em] text-cream shadow-md transition-all hover:-translate-y-0.5 hover:bg-forest-deep"
+                  className="inline-flex items-center gap-2.5 rounded-full border border-gold/30 bg-forest px-8 py-3.5 font-sans text-[10px] font-medium uppercase tracking-[0.35em] text-cream shadow-xl transition-all hover:-translate-y-0.5 hover:bg-forest-deep"
                 >
                   <Navigation className="h-4 w-4 text-gold-light" />
                   Buka Google Maps

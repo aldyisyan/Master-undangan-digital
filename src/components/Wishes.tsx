@@ -72,21 +72,21 @@ export default function Wishes() {
         <Reveal>
           <form
             onSubmit={submit}
-            className="relative rounded-3xl border border-gold/40 bg-cream p-7 shadow-[0_25px_60px_-30px_rgba(53,65,45,0.4)] sm:p-9"
+            className="relative rounded-[2rem] border border-gold/30 bg-cream/70 p-7 shadow-[0_45px_100px_-20px_rgba(38,47,32,0.25)] backdrop-blur-md sm:p-10"
           >
-            <span className="pointer-events-none absolute inset-2.5 rounded-[18px] border border-gold/20" />
+            <span className="pointer-events-none absolute inset-3 rounded-[1.25rem] border border-gold/20" />
             <div className="relative">
-              <label className="font-sans text-[10px] font-semibold uppercase tracking-[0.3em] text-gold-dark">
+              <label className="font-sans text-[9px] font-medium uppercase tracking-[0.45em] text-gold-dark">
                 Nama
               </label>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Tulis namamu…"
-                className="mt-2 w-full rounded-xl border border-gold/30 bg-ivory px-4 py-3 font-serif text-[15px] text-ink outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/25"
+                className="mt-2 w-full rounded-xl border border-gold/25 bg-ivory/50 px-4 py-3 font-serif text-[15px] text-ink outline-none transition focus:border-gold focus:bg-ivory focus:ring-2 focus:ring-gold/20"
               />
 
-              <label className="mt-6 block font-sans text-[10px] font-semibold uppercase tracking-[0.3em] text-gold-dark">
+              <label className="mt-6 block font-sans text-[9px] font-medium uppercase tracking-[0.45em] text-gold-dark">
                 Konfirmasi Kehadiran
               </label>
               <div className="mt-2 grid grid-cols-3 gap-2">
@@ -121,7 +121,7 @@ export default function Wishes() {
                     transition={{ duration: 0.35, ease: "easeInOut" }}
                     className="overflow-hidden"
                   >
-                    <label className="flex items-center gap-2 font-sans text-[10px] font-semibold uppercase tracking-[0.3em] text-gold-dark">
+                    <label className="flex items-center gap-2 font-sans text-[9px] font-medium uppercase tracking-[0.45em] text-gold-dark">
                       <Users className="h-3.5 w-3.5" />
                       Jumlah yang Akan Datang
                     </label>
@@ -148,7 +148,7 @@ export default function Wishes() {
                 )}
               </AnimatePresence>
 
-              <label className="mt-6 block font-sans text-[10px] font-semibold uppercase tracking-[0.3em] text-gold-dark">
+              <label className="mt-6 block font-sans text-[9px] font-medium uppercase tracking-[0.45em] text-gold-dark">
                 Ucapan &amp; Doa
               </label>
               <textarea
@@ -156,13 +156,13 @@ export default function Wishes() {
                 onChange={(e) => setMessage(e.target.value)}
                 rows={4}
                 placeholder="Tuliskan doa terbaikmu di sini…"
-                className="mt-2 w-full resize-none rounded-xl border border-gold/30 bg-ivory px-4 py-3 font-serif text-[15px] text-ink outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/25"
+                className="mt-2 w-full resize-none rounded-xl border border-gold/25 bg-ivory/50 px-4 py-3 font-serif text-[15px] text-ink outline-none transition focus:border-gold focus:bg-ivory focus:ring-2 focus:ring-gold/20"
               />
 
               <button
                 type="submit"
                 disabled={!name.trim() || !message.trim() || sending}
-                className="mt-6 inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-forest px-7 py-3.5 font-sans text-[11px] font-medium uppercase tracking-[0.3em] text-cream shadow-md transition-all hover:bg-forest-deep disabled:cursor-not-allowed disabled:opacity-40"
+                className="ring-pulse mt-8 inline-flex w-full items-center justify-center gap-2.5 rounded-full border border-gold/30 bg-forest px-7 py-3.5 font-sans text-[10px] font-medium uppercase tracking-[0.35em] text-cream shadow-xl transition-all hover:bg-forest-deep disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {sent ? (
                   <CheckCircle2 className="h-4 w-4 text-gold-light" />
@@ -177,13 +177,13 @@ export default function Wishes() {
 
         {/* daftar ucapan */}
         <Reveal delay={0.15}>
-          <div className="flex items-center justify-between">
-            <p className="inline-flex items-center gap-2 font-sans text-[11px] font-medium uppercase tracking-[0.3em] text-forest">
+          <div className="flex items-center justify-between border-b border-gold/20 pb-4">
+            <p className="inline-flex items-center gap-2 font-sans text-[10px] font-medium uppercase tracking-[0.4em] text-forest">
               <MessageCircleHeart className="h-4 w-4 text-gold-dark" />
               {wishes.length} ucapan · {count} hadir · {totalPax} orang
             </p>
           </div>
-          <div className="mt-5 max-h-[26rem] space-y-4 overflow-y-auto pr-2 [scrollbar-width:thin]">
+          <div className="mt-5 max-h-[28rem] space-y-4 overflow-y-auto pr-2 [scrollbar-width:thin]">
             <AnimatePresence initial={false}>
               {wishes.map((w) => {
                 const M = attendMeta[w.attend];
@@ -194,7 +194,7 @@ export default function Wishes() {
                     initial={{ opacity: 0, y: -14, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0 }}
-                    className="rounded-2xl border border-gold/25 bg-cream/80 px-5 py-4 shadow-sm"
+                    className="rounded-2xl border border-gold/20 bg-cream/50 px-5 py-5 shadow-sm backdrop-blur-sm"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <span className="font-serif text-base font-semibold text-forest">{w.name}</span>

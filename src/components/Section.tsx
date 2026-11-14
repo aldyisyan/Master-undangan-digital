@@ -50,15 +50,15 @@ export default function Section({ id, label, title, subtitle, children, tight }:
             left ? "items-start text-left" : "items-center text-center"
           }`}
         >
-          <span className="fluid-label font-sans font-semibold uppercase tracking-[0.45em] text-gold-dark">
+          <span className="fluid-label font-sans font-medium uppercase tracking-[0.55em] text-gold-dark">
             {label}
           </span>
-          <h2 className="fluid-title balance mt-3 max-w-2xl font-serif font-medium text-forest">
+          <h2 className="fluid-title balance mt-4 max-w-2xl font-serif font-light tracking-wide text-forest">
             {title}
           </h2>
           {subtitle && (
             <p
-              className={`balance mt-4 max-w-xl font-serif text-[clamp(0.95rem,3.2vw,1.1rem)] italic leading-relaxed text-ink/65 ${
+              className={`balance mt-5 max-w-xl font-serif text-[clamp(1rem,3.5vw,1.15rem)] italic leading-relaxed text-ink/70 ${
                 left ? "" : "mx-auto"
               }`}
             >

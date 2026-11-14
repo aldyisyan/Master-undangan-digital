@@ -33,14 +33,14 @@ export default function Countdown({ dateISO }: { dateISO: string }) {
       {cells.map((c) => (
         <div
           key={c.label}
-          className="relative min-w-0 flex-1 overflow-hidden rounded-xl border border-gold/40 bg-forest px-1 py-4 text-center shadow-md sm:px-2 sm:py-6"
+          className="relative min-w-0 flex-1 overflow-hidden rounded-2xl border border-gold/20 bg-forest/90 px-1 py-5 text-center shadow-[0_20px_40px_-15px_rgba(38,47,32,0.4)] backdrop-blur-md sm:px-2 sm:py-7"
         >
-          <span className="pointer-events-none absolute inset-x-3 top-2 h-px bg-gold-light/40 sm:inset-x-4" />
-          <span className="pointer-events-none absolute inset-x-3 bottom-2 h-px bg-gold-light/40 sm:inset-x-4" />
-          <span className="block font-sans text-[clamp(1.35rem,6vw,2.25rem)] font-light tabular-nums text-cream">
+          <span className="pointer-events-none absolute inset-x-4 top-2 h-[0.5px] bg-gold-light/30 sm:inset-x-5" />
+          <span className="pointer-events-none absolute inset-x-4 bottom-2 h-[0.5px] bg-gold-light/30 sm:inset-x-5" />
+          <span className="block font-serif text-[clamp(2rem,8vw,3.2rem)] font-light leading-none tracking-wide tabular-nums text-cream">
             {t.selesai ? "0" : String(c.value).padStart(2, "0")}
           </span>
-          <span className="mt-1 block font-sans text-[8px] uppercase tracking-[0.2em] text-gold-light sm:text-[10px] sm:tracking-[0.3em]">
+          <span className="mt-3 block font-sans text-[8px] font-medium uppercase tracking-[0.4em] text-gold-light sm:text-[9px]">
             {c.label}
           </span>
         </div>

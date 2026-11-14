@@ -48,10 +48,10 @@ export default function Cover({ guest, onOpen }: Props) {
       {/* kartu */}
       <motion.div
         exit={{ scale: 0.92, opacity: 0, y: 60 }}
-        transition={{ duration: 0.45, ease: "easeIn" }}
+        transition={{ duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
         className={`${
           L.ornament === "full" ? "gold-frame" : ""
-        } relative z-10 mx-4 flex max-h-[92svh] w-full max-w-md flex-col items-center overflow-y-auto overscroll-contain border border-gold/40 bg-cream/85 px-5 py-9 text-center shadow-[0_30px_80px_-20px_rgba(53,65,45,0.35)] backdrop-blur-sm sm:px-10 sm:py-10 ${L.radius}`}
+        } relative z-10 mx-4 flex max-h-[90svh] w-full max-w-md flex-col items-center overflow-y-auto overscroll-contain border border-gold/30 bg-cream/70 px-5 py-10 text-center shadow-[0_45px_100px_-20px_rgba(38,47,32,0.45)] backdrop-blur-md sm:px-12 sm:py-12 ${L.radius}`}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -72,8 +72,8 @@ export default function Cover({ guest, onOpen }: Props) {
         <motion.p
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.7 }}
-          className="fluid-label mt-5 font-sans font-medium uppercase tracking-[0.42em] text-gold-dark"
+          transition={{ delay: 0.45, duration: 0.8 }}
+          className="fluid-label mt-6 font-sans font-medium uppercase tracking-[0.55em] text-gold-dark"
         >
           Undangan Pernikahan
         </motion.p>
@@ -81,19 +81,21 @@ export default function Cover({ guest, onOpen }: Props) {
         <motion.h1
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.7 }}
-          className="balance mt-3 font-serif text-[clamp(1.15rem,5vw,1.5rem)] font-medium text-forest"
+          transition={{ delay: 0.6, duration: 0.8 }}
+          className="balance mt-4 font-serif text-[clamp(1.2rem,5vw,1.65rem)] font-medium tracking-wide text-forest"
         >
-          {s.bride.short} <span className="font-script text-gold">&amp;</span> {s.groom.short}
+          {s.bride.short} <span className="mx-1 font-script text-xl text-gold sm:text-2xl">&amp;</span> {s.groom.short}
         </motion.h1>
+
+        <div className="mx-auto mt-7 h-px w-12 bg-gold/40" />
 
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.65, duration: 0.7 }}
+          transition={{ delay: 0.75, duration: 0.8 }}
           className="mt-7 w-full"
         >
-          <p className="fluid-label balance font-sans uppercase tracking-[0.3em] text-ink/60">
+          <p className="fluid-label balance font-sans uppercase tracking-[0.35em] text-ink/50">
             {guest.honorific}
           </p>
           <p className="fluid-script balance break-safe mt-3 font-script text-gold-gradient">
@@ -104,12 +106,11 @@ export default function Cover({ guest, onOpen }: Props) {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.7 }}
-          className="balance mt-5 max-w-xs font-serif text-[clamp(0.85rem,3.3vw,0.95rem)] italic leading-relaxed text-ink/70"
+          transition={{ delay: 0.9, duration: 0.8 }}
+          className="balance mt-6 max-w-xs font-serif text-[clamp(0.85rem,3.3vw,0.95rem)] italic leading-relaxed text-ink/70"
         >
           Kami mengundang Anda untuk hadir dan memberikan doa restu pada hari bahagia kami —
-          <span className="font-sans text-xs uppercase not-italic tracking-widest text-forest">
-            {" "}
+          <span className="mt-2 block font-sans text-[10px] uppercase not-italic tracking-[0.35em] text-forest/80">
             {s.dateLabel}
           </span>
         </motion.p>
@@ -117,24 +118,24 @@ export default function Cover({ guest, onOpen }: Props) {
         <motion.button
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.95, duration: 0.7 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.96 }}
+          transition={{ delay: 1.05, duration: 0.8 }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
           onClick={onOpen}
-          className="ring-pulse group mt-8 inline-flex min-h-12 items-center gap-3 rounded-full bg-forest px-7 py-3.5 font-sans text-[11px] font-medium uppercase tracking-[0.28em] text-cream shadow-lg transition-colors hover:bg-forest-deep sm:px-8 sm:text-xs"
+          className="ring-pulse group mt-9 inline-flex min-h-12 items-center gap-3 rounded-full border border-gold/30 bg-forest px-8 py-3.5 font-sans text-[10px] font-medium uppercase tracking-[0.35em] text-cream shadow-xl transition-all hover:bg-forest-deep sm:text-[11px]"
         >
-          <MailOpen className="h-4 w-4 shrink-0 text-gold-light transition-transform group-hover:-rotate-12" />
+          <MailOpen className="h-4 w-4 shrink-0 text-gold-light transition-transform duration-500 group-hover:-rotate-12 group-hover:scale-110" />
           Buka Undangan
         </motion.button>
 
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.15, duration: 0.8 }}
-          className="mt-5 inline-flex items-center gap-2 font-sans text-[10px] tracking-wider text-ink/50"
+          transition={{ delay: 1.3, duration: 1 }}
+          className="mt-6 inline-flex items-center gap-2 font-sans text-[9px] tracking-[0.2em] text-ink/40 uppercase"
         >
-          <Headphones className="h-3.5 w-3.5 shrink-0 text-gold" />
-          gunakan earphone untuk pengalaman terbaik
+          <Headphones className="h-3 w-3 shrink-0 text-gold/80" />
+          gunakan earphone
         </motion.p>
       </motion.div>
     </motion.div>

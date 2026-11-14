@@ -72,37 +72,37 @@ export default function VoiceNote() {
       <Reveal>
         <div className="relative mx-auto max-w-2xl">
           {/* kartu utama */}
-          <div className="relative overflow-hidden rounded-3xl border border-gold/40 bg-cream p-7 shadow-[0_35px_70px_-30px_rgba(53,65,45,0.4)] sm:p-10">
-            <span className="pointer-events-none absolute inset-2 rounded-[20px] border border-gold/25" />
-            <QuoteIcon className="pointer-events-none absolute -right-4 -top-4 h-28 w-28 rotate-12 text-gold/10" />
+          <div className="relative overflow-hidden rounded-[2.5rem] border border-gold/30 bg-cream/90 p-8 shadow-[0_45px_100px_-20px_rgba(38,47,32,0.25)] backdrop-blur-sm sm:p-12">
+            <span className="pointer-events-none absolute inset-3 rounded-[2rem] border border-gold/20" />
+            <QuoteIcon className="pointer-events-none absolute -right-6 -top-6 h-36 w-36 rotate-12 text-gold/5" />
 
-            <div className="relative flex flex-col items-center gap-6 sm:flex-row sm:gap-8">
+            <div className="relative flex flex-col items-center gap-7 sm:flex-row sm:gap-10">
               {/* tombol play */}
               <motion.button
                 onClick={toggle}
-                whileTap={{ scale: 0.92 }}
+                whileTap={{ scale: 0.95 }}
                 aria-label={playing ? "Jeda voice note" : "Putar voice note"}
-                className="ring-pulse relative flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-forest text-cream shadow-lg transition-colors hover:bg-forest-deep"
+                className="ring-pulse relative flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-forest text-cream shadow-xl transition-colors hover:bg-forest-deep"
               >
                 <motion.span
-                  animate={playing ? { scale: [1, 1.35], opacity: [0.5, 0] } : { scale: 1, opacity: 0 }}
-                  transition={playing ? { repeat: Infinity, duration: 1.6, ease: "easeOut" } : {}}
-                  className="absolute inset-0 rounded-full border-2 border-gold"
+                  animate={playing ? { scale: [1, 1.4], opacity: [0.6, 0] } : { scale: 1, opacity: 0 }}
+                  transition={playing ? { repeat: Infinity, duration: 2, ease: "easeOut" } : {}}
+                  className="absolute inset-0 rounded-full border border-gold/50"
                 />
-                {playing ? <Pause className="h-7 w-7" /> : <Play className="ml-1 h-7 w-7" />}
+                {playing ? <Pause className="h-8 w-8" /> : <Play className="ml-1 h-8 w-8" />}
               </motion.button>
 
               <div className="w-full flex-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   <Mic className="h-3.5 w-3.5 text-gold" />
-                  <span className="font-sans text-[10px] font-medium uppercase tracking-[0.32em] text-gold-dark">
+                  <span className="font-sans text-[9px] font-medium uppercase tracking-[0.45em] text-gold-dark">
                     Voice Note
                   </span>
                 </div>
-                <h3 className="balance mt-1.5 font-serif text-[clamp(1.3rem,5vw,1.7rem)] font-medium text-forest">
+                <h3 className="balance mt-3 font-serif text-[clamp(1.4rem,5vw,1.8rem)] font-medium tracking-wide text-forest">
                   {vn.title}
                 </h3>
-                <p className="mt-1 font-serif text-sm italic text-ink/60">
+                <p className="mt-2 font-serif text-[15px] italic text-ink/70">
                   dari {settings.bride.short} &amp; {settings.groom.short}
                 </p>
 
