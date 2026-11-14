@@ -17,7 +17,7 @@ import { clearMedia } from "../lib/mediaStore";
 import { testCloudConnection, syncToCloud, pullFromCloud, forceReplaceWishesCloud } from "../lib/cloud";
 import {
   getCloudAdmin, saveCloudAdmin, clearCloud, saveCloudRead, getLastSync,
-  type CloudAdmin,
+  encodeCloudParam, type CloudAdmin,
 } from "../lib/cloudConfig";
 import { buildInviteLink } from "../lib/guestBook";
 import {
@@ -270,6 +270,7 @@ export default function AdminPage() {
   }
 
   const dirty = JSON.stringify(draft) !== JSON.stringify(liveSettings);
+  const encodeCloudRef = cloudAdmin ? encodeCloudParam() : "";
 
   // bingkai crop mengikuti template yang sedang dipilih
   const activeLayout = getLayout(draft.layout);
@@ -1227,14 +1228,15 @@ create policy "hapus anon" on storage.objects
                     semua pengaturan langsung sinkron.
                   </p>
                   <p className="mt-2 break-all rounded-xl bg-forest/10 px-4 py-3 font-mono text-[11px] text-forest">
-                    {`${window.location.origin}${window.location.pathname}#/admin?cloud=${encodeURIComponent(`${cloudAdmin.url}|${cloudAdmin.bucket}|${cloudAdmin.anonKey}`)}`}
+                    {`${window.location.origin}${window.location.pathname}#/admin?c=${encodeCloudRef}`}
                   </p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() => {
-                        const link = `${window.location.origin}${window.location.pathname}#/admin?cloud=${encodeURIComponent(`${cloudAdmin.url}|${cloudAdmin.bucket}|${cloudAdmin.anonKey}`)}`;
-                        navigator.clipboard?.writeText(link).catch(() => {});
+                        navigator.clipboard?.writeText(
+                          `${window.location.origin}${window.location.pathname}#/admin?c=${encodeCloudRef}`,
+                        ).catch(() => {});
                       }}
                       className="inline-flex items-center gap-2 rounded-full bg-forest px-5 py-2.5 font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-cream transition-colors hover:bg-forest-deep"
                     >

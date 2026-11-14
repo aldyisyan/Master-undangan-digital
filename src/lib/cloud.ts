@@ -370,6 +370,19 @@ export async function syncToCloud(
     await uploadObject(admin, "site/guests.json", guestsBlob, "application/json; charset=utf-8");
     onProgress?.(++done, total);
 
+    // upload site/cloud.json — file bootstrap agar link pendek (?c=ref) bisa resolve config
+    const cloudConfig = JSON.stringify({
+      url: admin.url,
+      bucket: admin.bucket,
+      anonKey: admin.anonKey,
+    });
+    await uploadObject(
+      admin,
+      "site/cloud.json",
+      new Blob([cloudConfig], { type: "application/json" }),
+      "application/json; charset=utf-8",
+    );
+
     setLastSync(new Date().toISOString());
     return true;
   } catch {

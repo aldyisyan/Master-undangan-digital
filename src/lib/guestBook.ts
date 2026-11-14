@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { getCloudRead, encodeCloudParam } from "./cloudConfig";
+import { encodeCloudParam } from "./cloudConfig";
 
 /* =========================================================
    GUEST BOOK — daftar tamu undangan yang dibuat dari panel
@@ -62,17 +62,15 @@ export function saveWaTemplate(tpl: string): void {
 
 /* ----------------------------- tautan ------------------------------- */
 
-/** Tautan undangan personal untuk sebuah nama tamu */
+/** Tautan undangan personal untuk sebuah nama tamu — sekarang sangat pendek */
 export function buildInviteLink(name: string): string {
   const base = `${window.location.origin}${window.location.pathname}#/`;
   const params = new URLSearchParams();
   const trimmed = name.trim();
   if (trimmed) params.set("to", trimmed);
-  // sertakan penanda cloud (termasuk anon key) agar HP tamu bisa:
-  // 1) membaca settings & media terbaru dari cloud
-  // 2) menulis RSVP/ucapan ke cloud
-  const read = getCloudRead();
-  if (read) params.set("cloud", encodeCloudParam(read));
+  // cloud param sekarang hanya project ref pendek (mis. "xpnpoqxljn")
+  const ref = encodeCloudParam();
+  if (ref) params.set("c", ref);
   const q = params.toString();
   return q ? `${base}?${q}` : base;
 }

@@ -4,10 +4,10 @@ import { useSettings, type GuestPage } from "./lib/settings";
 import { applyPalette } from "./lib/theme";
 import { applyFonts } from "./lib/typography";
 import { applyFavicon, applyDocumentTitle } from "./lib/favicon";
-import { pullFromCloud, pullRemoteUpdates } from "./lib/cloud";
+import { pullFromCloud } from "./lib/cloud";
 import {
   decodeCloudParam, saveCloudRead, getCloudRead,
-  getCloudAdmin, saveCloudAdmin,
+  getCloudAdmin, saveCloudAdmin, resolveCloudFromRef,
 } from "./lib/cloudConfig";
 import { generalGuest } from "./data/config";
 import InvitationPage from "./pages/InvitationPage";
@@ -17,57 +17,79 @@ export default function App() {
   const { route, to } = useHashRoute();
   const settings = useSettings();
 
-  // terapkan palet warna dari pengaturan ke seluruh dokumen
   useEffect(() => {
     applyPalette(settings.colors);
   }, [settings.colors]);
 
-  // muat & terapkan paket font terpilih
   useEffect(() => {
     applyFonts(settings.fontId);
   }, [settings.fontId]);
 
-  // favicon & judul tab mengikuti nama mempelai (wanita lebih dahulu)
   useEffect(() => {
     applyFavicon(settings.bride.short, settings.groom.short, settings.colors);
     applyDocumentTitle(settings.bride.short, settings.groom.short);
   }, [settings.bride.short, settings.groom.short, settings.colors]);
 
-  // sinkronisasi cloud:
-  // 1) tangkap penanda ?cloud=… dari URL hash ATAU query biasa
-  // 2) tarik settings + wishes terbaru dari cloud
-  // 3) polling berkala + refresh saat tab aktif kembali
+  // sinkronisasi cloud
   useEffect(() => {
-    const captureCloudMarker = () => {
+    const boot = async () => {
       const combined = `${window.location.search}&${window.location.hash}`;
-      const m = combined.match(/[?&]cloud=([^&]+)/);
-      if (!m) return;
-      const cfg = decodeCloudParam(m[1]);
-      if (!cfg) return;
-      saveCloudRead(cfg);
-      // bila param membawa anon key, simpan juga sebagai CloudAdmin
-      // agar perangkat ini bisa push (berguna untuk admin buka di HP)
-      if (cfg.anonKey && !getCloudAdmin()) {
-        saveCloudAdmin({ url: cfg.url, bucket: cfg.bucket, anonKey: cfg.anonKey });
+
+      // 1) tangkap parameter cloud — dua format:
+      //    ?c=xpnpoqxljn        (baru, pendek)
+      //    ?cloud=https%3A...    (lama, panjang — backward compat)
+      const shortMatch = combined.match(/[?&]c=([^&]+)/);
+      const longMatch = combined.match(/[?&]cloud=([^&]+)/);
+
+      if (shortMatch) {
+        const ref = decodeURIComponent(shortMatch[1]).trim();
+        // cek apakah sudah punya config lengkap
+        const existing = getCloudRead();
+        if (!existing || !existing.anonKey) {
+          // resolve config lengkap dari cloud.json
+          const full = await resolveCloudFromRef(ref);
+          if (full) {
+            saveCloudRead(full);
+            if (full.anonKey && !getCloudAdmin()) {
+              saveCloudAdmin({ url: full.url, bucket: full.bucket, anonKey: full.anonKey });
+            }
+          } else {
+            // fallback: simpan minimal
+            saveCloudRead({ url: `https://${ref}.supabase.co`, bucket: "invite" });
+          }
+        }
+      } else if (longMatch) {
+        // format lama — backward compat
+        const cfg = decodeCloudParam(longMatch[1]);
+        if (cfg) {
+          saveCloudRead(cfg);
+          if (cfg.anonKey && !getCloudAdmin()) {
+            saveCloudAdmin({ url: cfg.url, bucket: cfg.bucket, anonKey: cfg.anonKey });
+          }
+        }
+      }
+
+      // 2) pull data dari cloud
+      if (getCloudRead()) {
+        await pullFromCloud().catch(() => {});
       }
     };
 
-    const syncNow = () => {
-      if (!getCloudRead()) return;
-      pullFromCloud().catch(() => {});
-    };
+    boot();
 
-    captureCloudMarker();
-    syncNow();
+    // polling berkala
+    const timer = setInterval(() => {
+      if (getCloudRead()) pullFromCloud().catch(() => {});
+    }, 15_000);
 
-    // refresh penuh berkala: settings + wishes
-    const timer = setInterval(syncNow, 12_000);
-
-    // saat user kembali membuka tab / fokus jendela, refresh lagi
     const onVisible = () => {
-      if (document.visibilityState === "visible") syncNow();
+      if (document.visibilityState === "visible" && getCloudRead()) {
+        pullFromCloud().catch(() => {});
+      }
     };
-    const onFocus = () => syncNow();
+    const onFocus = () => {
+      if (getCloudRead()) pullFromCloud().catch(() => {});
+    };
 
     document.addEventListener("visibilitychange", onVisible);
     window.addEventListener("focus", onFocus);
@@ -79,13 +101,10 @@ export default function App() {
     };
   }, []);
 
-  // ========================= 2 HALAMAN SAJA =========================
   if (route === "admin") {
     return <AdminPage />;
   }
 
-  // Halaman undangan — nama tamu diambil dari parameter ?to=
-  // yang dibuat & dibagikan dari panel admin.
   const guest: GuestPage = {
     ...generalGuest,
     slug: to ? "tamu" : "",
@@ -95,7 +114,5 @@ export default function App() {
       : generalGuest.honorific,
   };
 
-  // key memaksa remount saat berganti nama tamu —
-  // amplop tertutup kembali untuk tamu berikutnya.
   return <InvitationPage key={to || "umum"} guest={guest} />;
 }
