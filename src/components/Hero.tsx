@@ -116,7 +116,7 @@ export default function Hero({ guest, opened }: Props) {
             variants={item}
             className="fluid-label font-sans font-medium uppercase tracking-[0.6em] text-gold-light"
           >
-            The Wedding Of
+            {L.eyebrow}
           </motion.p>
           <motion.h1 variants={item} className="balance mt-5 max-w-5xl font-script text-cream">
             <span className="block text-[clamp(3.8rem,17vw,9rem)] leading-[0.86] sm:inline">
@@ -153,7 +153,7 @@ export default function Hero({ guest, opened }: Props) {
               className="fluid-label inline-flex items-center gap-3 font-sans font-medium uppercase tracking-[0.42em] text-gold-dark"
             >
               <span className="h-px w-8 bg-gold/60" />
-              The Wedding Of
+              {L.eyebrow}
             </motion.div>
             <div className="mt-6 md:[&_.fluid-display]:text-[clamp(3rem,8vw,6.5rem)]">{Names}</div>
             <motion.div variants={item} className="mt-8">
@@ -191,7 +191,7 @@ export default function Hero({ guest, opened }: Props) {
         >
           <motion.div variants={item} className="flex items-center justify-between gap-4">
             <span className="fluid-label font-sans uppercase tracking-[0.35em] text-gold-dark">
-              The Wedding Of
+              {L.eyebrow}
             </span>
             <span className="h-px flex-1 bg-gold/40" />
             <span className="hidden font-sans text-[10px] tracking-widest text-ink/55 min-[440px]:block">
@@ -234,7 +234,7 @@ export default function Hero({ guest, opened }: Props) {
             className="fluid-label flex items-center gap-3 font-sans font-medium uppercase tracking-[0.45em] text-gold-dark"
           >
             <span className="h-px w-7 bg-gold/60 sm:w-14" />
-            The Wedding Of
+            {L.eyebrow}
             <span className="h-px w-7 bg-gold/60 sm:w-14" />
           </motion.div>
 
@@ -261,6 +261,49 @@ export default function Hero({ guest, opened }: Props) {
                 {s.groom.short}
               </span>
             </motion.h1>
+          ) : L.hero === "heritage" ? (
+            <div className="relative mt-8 flex min-h-72 w-full flex-col items-center justify-center sm:min-h-80">
+              <Wreath className="pointer-events-none absolute w-[min(90vw,25rem)] opacity-30" />
+              <motion.span
+                variants={item}
+                className="rounded-full border border-gold/35 bg-cream/70 px-4 py-1 font-sans text-[9px] uppercase tracking-[0.45em] text-gold-dark"
+              >
+                {s.bride.short.charAt(0)} • {s.groom.short.charAt(0)}
+              </motion.span>
+              <motion.h1 variants={item} className="relative mt-6 text-center font-serif text-forest">
+                <span className="block break-safe text-[clamp(2.7rem,10vw,5.8rem)] font-light tracking-[0.08em]">
+                  {s.bride.short}
+                </span>
+                <span className="my-3 block font-script text-[clamp(2.1rem,7vw,3.8rem)] text-gold">&amp;</span>
+                <span className="block break-safe text-[clamp(2.7rem,10vw,5.8rem)] font-light tracking-[0.08em]">
+                  {s.groom.short}
+                </span>
+              </motion.h1>
+              <motion.div variants={item} className="mt-6 flex items-center gap-3 text-gold/70">
+                <span className="h-px w-10 bg-gold/45" />
+                <span className="font-sans text-[9px] uppercase tracking-[0.45em]">heritage</span>
+                <span className="h-px w-10 bg-gold/45" />
+              </motion.div>
+            </div>
+          ) : L.hero === "banner" ? (
+            <motion.div
+              variants={item}
+              className="mt-8 w-full max-w-2xl rounded-[2rem] border border-gold/30 bg-cream/65 px-6 py-8 shadow-[0_25px_70px_-25px_rgba(53,65,45,0.28)] backdrop-blur-md sm:px-10 sm:py-10"
+            >
+              <span className="block font-sans text-[9px] uppercase tracking-[0.55em] text-gold-dark">
+                {L.eyebrow}
+              </span>
+              <div className="mt-5 font-script text-forest">
+                <span className="block break-safe text-[clamp(3rem,12vw,6rem)] leading-[0.86]">{s.bride.short}</span>
+                <span className="block font-serif text-[clamp(1.4rem,4vw,2rem)] italic text-gold">&amp;</span>
+                <span className="block break-safe text-[clamp(3rem,12vw,6rem)] leading-[0.86]">{s.groom.short}</span>
+              </div>
+              <div className="mt-6 flex items-center justify-center gap-3">
+                <span className="h-px w-10 bg-gold/40" />
+                <span className="font-sans text-[9px] uppercase tracking-[0.45em] text-forest/65">Baralek</span>
+                <span className="h-px w-10 bg-gold/40" />
+              </div>
+            </motion.div>
           ) : L.hero === "monogram" ? (
             <div className="relative mt-7 flex min-h-64 w-full items-center justify-center sm:min-h-80">
               <motion.span

@@ -17,6 +17,24 @@ export default function Cover({ guest, onOpen }: Props) {
   const bg = useMediaSrc(s.backgroundImage);
   const dim = Math.min(0.92, Math.max(0, s.backgroundDim / 100));
 
+  const darkCover = ["sinematik", "midnight"].includes(L.id);
+  const royalCover = ["royal", "adat-jawa", "adat-bali"].includes(L.id);
+  const airyCover = ["minimalis", "soft-editorial", "atelier", "garden-party"].includes(L.id);
+
+  const coverPanel = darkCover
+    ? "border-gold-light/25 bg-forest-deep/68 text-cream shadow-[0_45px_110px_-20px_rgba(0,0,0,0.55)] backdrop-blur-xl"
+    : royalCover
+      ? "border-gold/35 bg-cream/78 text-forest shadow-[0_50px_110px_-22px_rgba(53,65,45,0.42)] backdrop-blur-lg"
+      : airyCover
+        ? "border-gold/20 bg-cream/62 text-forest shadow-[0_42px_96px_-20px_rgba(53,65,45,0.28)] backdrop-blur-xl"
+        : "border-gold/30 bg-cream/70 text-forest shadow-[0_45px_100px_-20px_rgba(38,47,32,0.45)] backdrop-blur-md";
+
+  const labelTone = darkCover ? "text-gold-light/80" : "text-gold-dark";
+  const headingTone = darkCover ? "text-cream" : "text-forest";
+  const subTone = darkCover ? "text-cream/70" : "text-ink/70";
+  const formalTone = darkCover ? "text-cream/55" : "text-ink/50";
+  const dateTone = darkCover ? "text-gold-light/80" : "text-forest/80";
+
   return (
     <motion.div
       className="fixed inset-0 z-[80] flex items-center justify-center overflow-hidden bg-ivory"
@@ -51,7 +69,7 @@ export default function Cover({ guest, onOpen }: Props) {
         transition={{ duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
         className={`${
           L.ornament === "full" ? "gold-frame" : ""
-        } relative z-10 mx-4 flex max-h-[90svh] w-full max-w-md flex-col items-center overflow-y-auto overscroll-contain border border-gold/30 bg-cream/70 px-5 py-10 text-center shadow-[0_45px_100px_-20px_rgba(38,47,32,0.45)] backdrop-blur-md sm:px-12 sm:py-12 ${L.radius}`}
+        } ${coverPanel} relative z-10 mx-4 flex max-h-[90svh] w-full max-w-md flex-col items-center overflow-y-auto overscroll-contain px-5 py-10 text-center sm:px-12 sm:py-12 ${L.radius}`}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -59,9 +77,9 @@ export default function Cover({ guest, onOpen }: Props) {
           transition={{ delay: 0.25, duration: 0.9, ease: "easeOut" }}
           className="relative mt-1 h-24 w-24 shrink-0 sm:h-32 sm:w-32"
         >
-          <Wreath className="spin-slow absolute inset-0 h-full w-full [animation-duration:40s]" />
+          <Wreath className={`spin-slow absolute inset-0 h-full w-full [animation-duration:40s] ${darkCover ? "opacity-55" : ""}`} />
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="font-script text-3xl text-forest sm:text-4xl">
+            <span className={`font-script text-3xl sm:text-4xl ${headingTone}`}>
               {s.bride.short.charAt(0)}
               <span className="mx-1 text-xl text-gold sm:text-2xl">&amp;</span>
               {s.groom.short.charAt(0)}
@@ -73,16 +91,16 @@ export default function Cover({ guest, onOpen }: Props) {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.45, duration: 0.8 }}
-          className="fluid-label mt-6 font-sans font-medium uppercase tracking-[0.55em] text-gold-dark"
+          className={`fluid-label mt-6 font-sans font-medium uppercase tracking-[0.55em] ${labelTone}`}
         >
-          Undangan Pernikahan
+          {L.eyebrow}
         </motion.p>
 
         <motion.h1
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
-          className="balance mt-4 font-serif text-[clamp(1.2rem,5vw,1.65rem)] font-medium tracking-wide text-forest"
+          className={`balance mt-4 font-serif text-[clamp(1.2rem,5vw,1.65rem)] font-medium tracking-wide ${headingTone}`}
         >
           {s.bride.short} <span className="mx-1 font-script text-xl text-gold sm:text-2xl">&amp;</span> {s.groom.short}
         </motion.h1>
@@ -95,7 +113,7 @@ export default function Cover({ guest, onOpen }: Props) {
           transition={{ delay: 0.75, duration: 0.8 }}
           className="mt-7 w-full"
         >
-          <p className="fluid-label balance font-sans uppercase tracking-[0.35em] text-ink/50">
+          <p className={`fluid-label balance font-sans uppercase tracking-[0.35em] ${formalTone}`}>
             {guest.honorific}
           </p>
           <p className="fluid-script balance break-safe mt-3 font-script text-gold-gradient">
@@ -107,10 +125,10 @@ export default function Cover({ guest, onOpen }: Props) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.9, duration: 0.8 }}
-          className="balance mt-6 max-w-xs font-serif text-[clamp(0.85rem,3.3vw,0.95rem)] italic leading-relaxed text-ink/70"
+          className={`balance mt-6 max-w-xs font-serif text-[clamp(0.85rem,3.3vw,0.95rem)] italic leading-relaxed ${subTone}`}
         >
-          Kami mengundang Anda untuk hadir dan memberikan doa restu pada hari bahagia kami —
-          <span className="mt-2 block font-sans text-[10px] uppercase not-italic tracking-[0.35em] text-forest/80">
+          {L.strength}
+          <span className={`mt-3 block font-sans text-[10px] uppercase not-italic tracking-[0.35em] ${dateTone}`}>
             {s.dateLabel}
           </span>
         </motion.p>

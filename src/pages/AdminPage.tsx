@@ -543,6 +543,12 @@ export default function AdminPage() {
                       <span className="mt-1 block font-sans text-[11px] leading-relaxed text-ink/55">
                         {l.desc}
                       </span>
+                      <span className="mt-2 inline-flex rounded-full border border-gold/25 bg-paper/80 px-2.5 py-1 font-sans text-[9px] uppercase tracking-[0.18em] text-gold-dark">
+                        {l.eyebrow}
+                      </span>
+                      <span className="mt-2 block font-serif text-[13px] italic leading-relaxed text-ink/65">
+                        {l.strength}
+                      </span>
                       {/* sketsa mini */}
                       <span
                         className={`mt-3 flex h-14 items-center justify-center gap-1.5 overflow-hidden rounded-lg px-3 ${
@@ -576,6 +582,20 @@ export default function AdminPage() {
                           <span className="relative flex h-11 w-20 items-center justify-center">
                             <span className="absolute font-serif text-4xl text-gold/20">KB</span>
                             <span className="relative h-1.5 w-12 rounded bg-forest/60" />
+                          </span>
+                        ) : l.hero === "heritage" ? (
+                          <span className="relative flex h-11 w-24 flex-col items-center justify-center gap-1">
+                            <span className="h-4 w-4 rounded-full border border-gold/60" />
+                            <span className="h-1.5 w-14 rounded bg-forest/60" />
+                            <span className="h-1 w-8 rounded bg-gold/60" />
+                            <span className="h-1.5 w-14 rounded bg-forest/60" />
+                          </span>
+                        ) : l.hero === "banner" ? (
+                          <span className="flex w-24 flex-col items-center gap-1 rounded-md border border-gold/40 px-2 py-1.5">
+                            <span className="h-1 w-10 rounded bg-gold/60" />
+                            <span className="h-1.5 w-16 rounded bg-forest/60" />
+                            <span className="h-1 w-4 rounded bg-gold/50" />
+                            <span className="h-1.5 w-16 rounded bg-forest/60" />
                           </span>
                         ) : l.hero === "duet" ? (
                           <span className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-1">
