@@ -42,12 +42,22 @@ export async function fetchRemoteWishes(read: CloudRead): Promise<Wish[] | null>
   }
 }
 
+/** Merge wishes lokal + remote tanpa duplikasi */
+function mergeWishes(local: Wish[], remote: Wish[]): Wish[] {
+  const seen = new Set<string>();
+  const merged: Wish[] = [];
+  const key = (w: Wish) => `${w.name.trim().toLowerCase()}|${w.at}`;
+  for (const w of remote) { const k = key(w); if (!seen.has(k)) { seen.add(k); merged.push(w); } }
+  for (const w of local)  { const k = key(w); if (!seen.has(k)) { seen.add(k); merged.push(w); } }
+  merged.sort((a, b) => b.at - a.at);
+  return merged;
+}
+
 /** Tarik pengaturan + wishes terbaru dari cloud & terapkan ke aplikasi */
 export async function pullFromCloud(): Promise<boolean> {
   const read = getCloudRead();
   if (!read) return false;
 
-  // pull settings & wishes secara paralel
   const [remote, remoteWishes] = await Promise.all([
     fetchRemoteSettings(read),
     fetchRemoteWishes(read),
@@ -59,25 +69,76 @@ export async function pullFromCloud(): Promise<boolean> {
     ok = true;
   }
   if (remoteWishes) {
-    replaceWishesFromCloud(remoteWishes);
+    // merge agar ucapan lokal yang belum ter-push tidak hilang
+    const { loadWishes } = await import("./wishes");
+    const merged = mergeWishes(loadWishes(), remoteWishes);
+    replaceWishesFromCloud(merged);
     ok = true;
   }
   return ok;
 }
 
-/** Upload wishes.json ke cloud (dipanggil setiap kali wishes berubah) */
-export async function pushWishesToCloud(admin: CloudAdmin, wishes: Wish[]): Promise<boolean> {
+/**
+ * Upload wishes.json ke cloud dengan strategi MERGE:
+ * 1) Baca wishes yang sudah ada di cloud
+ * 2) Gabungkan dengan wishes lokal (deduplikasi berdasar name+at)
+ * 3) Upload hasil gabungan
+ *
+ * Ini mencegah tamu A menimpa ucapan tamu B.
+ */
+export async function pushWishesToCloud(admin: CloudAdmin, localWishes: Wish[]): Promise<boolean> {
+  try {
+    // baca dulu yang sudah ada di cloud
+    const remote = await fetchRemoteWishes(admin);
+    const cloudWishes = remote ?? [];
+
+    // merge: kumpulkan semua, deduplikasi berdasar key unik (name+at)
+    const seen = new Set<string>();
+    const merged: Wish[] = [];
+    const key = (w: Wish) => `${w.name.trim().toLowerCase()}|${w.at}`;
+
+    // lokal dulu (prioritas lebih tinggi untuk entri yang baru saja ditambahkan)
+    for (const w of localWishes) {
+      const k = key(w);
+      if (!seen.has(k)) { seen.add(k); merged.push(w); }
+    }
+    // lalu cloud (tambahkan yang belum ada di lokal)
+    for (const w of cloudWishes) {
+      const k = key(w);
+      if (!seen.has(k)) { seen.add(k); merged.push(w); }
+    }
+
+    // urutkan: terbaru di atas
+    merged.sort((a, b) => b.at - a.at);
+
+    const json = new Blob([JSON.stringify(merged)], { type: "application/json" });
+    const ok = await uploadObject(admin, "site/wishes.json", json, "application/json; charset=utf-8");
+
+    // update state lokal dengan hasil merge agar langsung tampil
+    if (ok) replaceWishesFromCloud(merged);
+    return ok;
+  } catch {
+    // fallback: upload lokal apa adanya
+    const json = new Blob([JSON.stringify(localWishes)], { type: "application/json" });
+    return uploadObject(admin, "site/wishes.json", json, "application/json; charset=utf-8");
+  }
+}
+
+/** Force-replace wishes di cloud tanpa merge (untuk admin delete/wipe) */
+export async function forceReplaceWishesCloud(admin: CloudAdmin, wishes: Wish[]): Promise<boolean> {
   const json = new Blob([JSON.stringify(wishes)], { type: "application/json" });
   return uploadObject(admin, "site/wishes.json", json, "application/json; charset=utf-8");
 }
 
-/** Pull hanya wishes dari cloud (untuk polling di halaman undangan) */
+/** Pull hanya wishes dari cloud (untuk polling) */
 export async function pullWishesOnly(): Promise<boolean> {
   const read = getCloudRead();
   if (!read) return false;
   const remote = await fetchRemoteWishes(read);
   if (!remote) return false;
-  replaceWishesFromCloud(remote);
+  const { loadWishes } = await import("./wishes");
+  const merged = mergeWishes(loadWishes(), remote);
+  replaceWishesFromCloud(merged);
   return true;
 }
 

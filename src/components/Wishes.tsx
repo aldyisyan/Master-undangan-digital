@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Send, MessageCircleHeart, CheckCircle2, XCircle, HelpCircle, Users } from "lucide-react";
 import Section, { Reveal } from "./Section";
 import { useWishes, addWish, type Wish } from "../lib/wishes";
-import { getCloudAdmin } from "../lib/cloudConfig";
+import { getWritableCloud } from "../lib/cloudConfig";
 import { pushWishesToCloud } from "../lib/cloud";
 
 const attendMeta = {
@@ -39,11 +39,11 @@ export default function Wishes() {
     // 1) simpan ke store lokal + localStorage (langsung tampil)
     addWish(entry);
 
-    // 2) push ke Supabase bila cloud aktif
-    const admin = getCloudAdmin();
-    if (admin) {
+    // 2) push ke Supabase bila cloud aktif (admin ATAU tamu dengan anon key)
+    const writable = getWritableCloud();
+    if (writable) {
       const { loadWishes } = await import("../lib/wishes");
-      await pushWishesToCloud(admin, loadWishes()).catch(() => {});
+      await pushWishesToCloud(writable, loadWishes()).catch(() => {});
     }
 
     setName("");

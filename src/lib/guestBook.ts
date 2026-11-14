@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { getCloudRead } from "./cloudConfig";
+import { getCloudRead, encodeCloudParam } from "./cloudConfig";
 
 /* =========================================================
    GUEST BOOK — daftar tamu undangan yang dibuat dari panel
@@ -68,10 +68,11 @@ export function buildInviteLink(name: string): string {
   const params = new URLSearchParams();
   const trimmed = name.trim();
   if (trimmed) params.set("to", trimmed);
-  // sertakan penanda cloud bila sinkronisasi aktif, agar HP tamu
-  // memuat pengaturan & media versi terbaru
+  // sertakan penanda cloud (termasuk anon key) agar HP tamu bisa:
+  // 1) membaca settings & media terbaru dari cloud
+  // 2) menulis RSVP/ucapan ke cloud
   const read = getCloudRead();
-  if (read) params.set("cloud", `${read.url}|${read.bucket}`);
+  if (read) params.set("cloud", encodeCloudParam(read));
   const q = params.toString();
   return q ? `${base}?${q}` : base;
 }

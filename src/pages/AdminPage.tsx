@@ -14,7 +14,7 @@ import { THEME_PRESETS, PALETTE_FIELDS } from "../lib/theme";
 import { LAYOUTS, getLayout, portraitClass } from "../lib/layouts";
 import { FONT_PRESETS } from "../lib/typography";
 import { clearMedia } from "../lib/mediaStore";
-import { testCloudConnection, syncToCloud, pullFromCloud } from "../lib/cloud";
+import { testCloudConnection, syncToCloud, pullFromCloud, forceReplaceWishesCloud } from "../lib/cloud";
 import {
   getCloudAdmin, saveCloudAdmin, clearCloud, saveCloudRead, getLastSync,
   type CloudAdmin,
@@ -23,7 +23,7 @@ import { buildInviteLink } from "../lib/guestBook";
 import {
   useWishes, wipeWishes, restoreSeedWishes, removeWish as removeWishStore, type Wish,
 } from "../lib/wishes";
-import { pushWishesToCloud } from "../lib/cloud";
+/* pushWishesToCloud dipakai di Wishes.tsx untuk tamu; admin pakai forceReplaceWishesCloud */
 import Code from "../components/Code";
 import { Field, Area, Card, ImagePicker, AudioPicker } from "../components/admin/fields";
 import GuestBookPanel from "../components/admin/GuestBookPanel";
@@ -322,7 +322,7 @@ export default function AdminPage() {
       return;
     }
     saveCloudAdmin(cfg);
-    saveCloudRead({ url: cfg.url, bucket: cfg.bucket });
+    saveCloudRead({ url: cfg.url, bucket: cfg.bucket, anonKey: cfg.anonKey });
     setCloudAdmin(cfg);
     setCloudMsg({ ok: true, text: "Terhubung! Mengunggah pengaturan & media ke cloud…" });
     await runCloudSync(cfg, structuredClone(draft));
@@ -335,9 +335,9 @@ export default function AdminPage() {
   };
 
   const removeWish = async (w: Wish) => {
-    const next = removeWishStore(w);       // update store + localStorage
+    const next = removeWishStore(w);
     if (cloudAdmin) {
-      await pushWishesToCloud(cloudAdmin, next).catch(() => {});
+      await forceReplaceWishesCloud(cloudAdmin, next).catch(() => {});
     }
   };
 
@@ -345,7 +345,7 @@ export default function AdminPage() {
     if (!window.confirm("Hapus SEMUA ucapan & RSVP di perangkat ini?")) return;
     wipeWishes();
     if (cloudAdmin) {
-      await pushWishesToCloud(cloudAdmin, []).catch(() => {});
+      await forceReplaceWishesCloud(cloudAdmin, []).catch(() => {});
     }
   };
 
@@ -353,7 +353,7 @@ export default function AdminPage() {
     restoreSeedWishes();
     if (cloudAdmin) {
       const { loadWishes } = await import("../lib/wishes");
-      await pushWishesToCloud(cloudAdmin, loadWishes()).catch(() => {});
+      await forceReplaceWishesCloud(cloudAdmin, loadWishes()).catch(() => {});
     }
   };
 
