@@ -15,11 +15,13 @@ import {
 import { loadWishes, type Wish } from "../../lib/wishes";
 import { Card } from "./fields";
 
-/* ======================== EKSPOR EXCEL (.xlsx via HTML table) ========================
-   Trik: simpan sebagai .xls dengan konten HTML table — Excel membacanya langsung rapi
-   tanpa masalah separator, tanpa dialog impor, semua kolom terbaca bersih.
-   Hanya 4 kolom: No | Nama Tamu | Konfirmasi Kehadiran | Jumlah Orang
-   ==================================================================================== */
+/* ====================== EKSPOR EXCEL ASLI (.xlsx) ======================
+   Menggunakan workbook Excel beneran supaya:
+   - lebih stabil dibuka di Excel / Google Sheets / Numbers
+   - kolom rapi
+   - tidak ada masalah separator / kutip / karakter aneh
+   - autofilter & lebar kolom otomatis
+   ====================================================================== */
 
 const ATTEND_LABEL: Record<Wish["attend"], string> = {
   hadir: "Hadir",
@@ -27,119 +29,57 @@ const ATTEND_LABEL: Record<Wish["attend"], string> = {
   tidak: "Berhalangan",
 };
 
-const ATTEND_COLOR: Record<Wish["attend"], string> = {
-  hadir: "#d4edda",   // hijau muda
-  ragu:  "#fff3cd",   // kuning muda
-  tidak: "#f8d7da",   // merah muda
-};
-
-function esc(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-function exportGuestsExcel(guests: InviteGuest[], settings: InvitationSettings) {
-  // ambil data RSVP yang tersimpan di perangkat ini, cocokkan berdasar nama
+async function exportGuestsExcel(guests: InviteGuest[], settings: InvitationSettings) {
   const wishes = loadWishes();
   const byName = new Map<string, Wish>();
   for (const w of wishes) byName.set(w.name.trim().toLowerCase(), w);
 
-  // hitung ringkasan untuk baris footer
-  const hadirRsvp = guests.filter((g) => {
-    const w = byName.get(g.name.trim().toLowerCase());
-    return w?.attend === "hadir";
+  const rows = guests.map((g, i) => {
+    const wish = byName.get(g.name.trim().toLowerCase());
+    return {
+      No: i + 1,
+      "Nama Tamu": g.name,
+      "Status Kehadiran": wish ? ATTEND_LABEL[wish.attend] : "Belum Konfirmasi",
+      "Jumlah Kedatangan": wish?.attend === "hadir" ? wish.count ?? 1 : "-",
+    };
   });
-  const totalPax = hadirRsvp.reduce((sum, g) => {
-    const w = byName.get(g.name.trim().toLowerCase());
-    return sum + (w?.count ?? 1);
-  }, 0);
-  const belumKonfirmasi = guests.filter((g) => !byName.has(g.name.trim().toLowerCase())).length;
 
-  /* ---------- bangun HTML table ---------- */
-  const th = (txt: string, extra = "") =>
-    `<th style="background:#35412d;color:#d9c193;font-family:Calibri,Arial,sans-serif;font-size:11pt;padding:8px 12px;border:1px solid #262f20;white-space:nowrap;${extra}">${esc(txt)}</th>`;
+  const { utils, writeFileXLSX } = await import("xlsx");
+  const workbook = utils.book_new();
+  const worksheet = utils.json_to_sheet(rows, {
+    header: ["No", "Nama Tamu", "Status Kehadiran", "Jumlah Kedatangan"],
+  });
 
-  const td = (txt: string, extra = "") =>
-    `<td style="font-family:Calibri,Arial,sans-serif;font-size:10pt;padding:7px 12px;border:1px solid #d0cbb8;vertical-align:middle;${extra}">${esc(txt)}</td>`;
+  // lebar kolom agar nyaman dibaca
+  worksheet["!cols"] = [
+    { wch: 6 },
+    { wch: 34 },
+    { wch: 24 },
+    { wch: 18 },
+  ];
 
-  const headerRow = `<tr>${th("No", "text-align:center;width:40px")}${th("Nama Tamu", "width:220px")}${th("Konfirmasi Kehadiran", "width:160px;text-align:center")}${th("Jumlah Orang", "width:100px;text-align:center")}</tr>`;
+  // filter pada header
+  worksheet["!autofilter"] = { ref: "A1:D1" };
 
-  const dataRows = guests.map((g, i) => {
-    const w = byName.get(g.name.trim().toLowerCase());
-    const attend   = w ? ATTEND_LABEL[w.attend]  : "Belum Konfirmasi";
-    const bgColor  = w ? ATTEND_COLOR[w.attend]  : "#f5f0e5";
-    const pax      = (w?.attend === "hadir") ? String(w.count ?? 1) : "-";
-    const rowBg    = i % 2 === 0 ? "#fdfaf4" : "#f5f0e5";
+  // freeze header row (beberapa viewer mendukung)
+  (worksheet as Record<string, unknown>)["!freeze"] = { xSplit: 0, ySplit: 1 };
 
-    return `<tr>
-      ${td(String(i + 1), `background:${rowBg};text-align:center;color:#666`)}
-      ${td(g.name, `background:${rowBg};font-weight:600;color:#35412d`)}
-      ${td(attend, `background:${bgColor};text-align:center;font-weight:600;color:#2d2d2d`)}
-      ${td(pax,    `background:${rowBg};text-align:center;color:#2d2d2d`)}
-    </tr>`;
-  }).join("\n");
+  utils.book_append_sheet(workbook, worksheet, "Daftar Tamu");
 
-  // footer ringkasan — 2 baris kosong lalu tabel mini
-  const summaryRows = [
-    ["", "", "", ""],
-    ["RINGKASAN", "", "", ""],
-    [`Total tamu terdaftar`, String(guests.length), "", ""],
-    [`Sudah konfirmasi hadir`, String(hadirRsvp.length), "", ""],
-    [`Belum konfirmasi`, String(belumKonfirmasi), "", ""],
-    [`Perkiraan total tamu hadir`, `${totalPax} orang`, "", ""],
-  ].map(([a, b]) =>
-    `<tr>
-      <td style="font-family:Calibri,Arial,sans-serif;font-size:10pt;padding:5px 12px;border:none;"></td>
-      <td style="font-family:Calibri,Arial,sans-serif;font-size:10pt;padding:5px 12px;border:none;font-weight:600;color:#35412d;">${esc(a)}</td>
-      <td style="font-family:Calibri,Arial,sans-serif;font-size:10pt;padding:5px 12px;border:none;color:#333;">${esc(b)}</td>
-      <td></td>
-    </tr>`
-  ).join("\n");
+  // metadata workbook
+  workbook.Props = {
+    Title: `Daftar Tamu ${settings.bride.short} & ${settings.groom.short}`,
+    Subject: "Wedding Guest List",
+    Author: `${settings.bride.short} & ${settings.groom.short}`,
+    CreatedDate: new Date(),
+  };
 
   const stamp = new Date().toISOString().slice(0, 10);
-  const title = `Daftar Tamu — ${settings.bride.short} & ${settings.groom.short} — ${stamp}`;
-
-  const html = `
-<html xmlns:o="urn:schemas-microsoft-com:office:office"
-      xmlns:x="urn:schemas-microsoft-com:office:excel"
-      xmlns="http://www.w3.org/TR/REC-html40">
-<head>
-  <meta charset="UTF-8">
-  <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>
-    <x:ExcelWorksheet><x:Name>Daftar Tamu</x:Name>
-    <x:WorksheetOptions><x:Selected/></x:WorksheetOptions>
-    </x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
-  <style>
-    body { font-family: Calibri, Arial, sans-serif; }
-    table { border-collapse: collapse; }
-  </style>
-</head>
-<body>
-  <p style="font-family:Calibri,Arial,sans-serif;font-size:14pt;font-weight:bold;color:#35412d;margin-bottom:12px;">
-    ${esc(title)}
-  </p>
-  <table>
-    <thead>${headerRow}</thead>
-    <tbody>
-      ${dataRows}
-      ${summaryRows}
-    </tbody>
-  </table>
-</body>
-</html>`;
-
-  const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8" });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement("a");
-  a.href     = url;
-  a.download = `daftar-tamu-${settings.bride.short.toLowerCase()}-${settings.groom.short.toLowerCase()}-${stamp}.xls`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 4000);
+  writeFileXLSX(
+    workbook,
+    `daftar-tamu-${settings.bride.short.toLowerCase()}-${settings.groom.short.toLowerCase()}-${stamp}.xlsx`,
+    { compression: true },
+  );
 }
 
 async function copyText(text: string): Promise<boolean> {
@@ -405,13 +345,13 @@ export default function GuestBookPanel({ settings }: { settings: InvitationSetti
       {/* daftar tamu tersimpan */}
       <Card
         title={`Daftar Tamu Tersimpan (${guests.length})`}
-        desc="Data tidak hilang saat halaman ditutup. Kirim ulang, salin tautan, ekspor ke Excel (.xls), atau hapus kapan saja."
+        desc="Data tidak hilang saat halaman ditutup. Kirim ulang, salin tautan, ekspor ke Excel (.xlsx), atau hapus kapan saja."
         action={
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => exportGuestsExcel(guests, settings)}
               disabled={guests.length === 0}
-              title="Unduh CSV berisi nama, status kirim, konfirmasi kehadiran, dan jumlah orang"
+              title="Unduh file Excel berisi nama tamu, status kehadiran, dan jumlah kedatangan"
               className="inline-flex items-center gap-1.5 rounded-full bg-forest px-4 py-2 font-sans text-[9px] font-semibold uppercase tracking-[0.2em] text-cream shadow-sm transition-colors hover:bg-forest-deep disabled:cursor-not-allowed disabled:opacity-40"
             >
               <FileSpreadsheet className="h-3 w-3 text-gold-light" /> Export Excel

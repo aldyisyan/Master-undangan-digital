@@ -74,6 +74,66 @@ export const FONT_PRESETS: FontPreset[] = [
     query:
       "family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Italianno&family=Inter:wght@200..600",
   },
+  {
+    id: "bodoni",
+    name: "Bodoni Moda · Alex Brush",
+    desc: "High-fashion, glamor, dan editorial mewah",
+    serif: "Bodoni Moda",
+    script: "Alex Brush",
+    sans: "Manrope",
+    query:
+      "family=Bodoni+Moda:opsz,wght@6..96,400..800&family=Alex+Brush&family=Manrope:wght@200..700",
+  },
+  {
+    id: "dmserif",
+    name: "DM Serif · Cormorant Infant",
+    desc: "Romantis dewasa dengan kontras tegas dan feminin",
+    serif: "DM Serif Display",
+    script: "Cormorant Infant",
+    sans: "Manrope",
+    query:
+      "family=DM+Serif+Display:ital@0;1&family=Cormorant+Infant:ital,wght@0,300..700;1,300..700&family=Manrope:wght@200..700",
+  },
+  {
+    id: "prata",
+    name: "Prata · Tangerine",
+    desc: "Megah, lapang, dan sangat anggun untuk tema formal",
+    serif: "Prata",
+    script: "Tangerine",
+    sans: "Outfit",
+    query:
+      "family=Prata&family=Tangerine:wght@400;700&family=Outfit:wght@200..700",
+  },
+  {
+    id: "bellefair",
+    name: "Bellefair · Mrs Saint Delafield",
+    desc: "Halus, aristokrat, dan sangat artistik",
+    serif: "Bellefair",
+    script: "Mrs Saint Delafield",
+    sans: "Inter",
+    query:
+      "family=Bellefair&family=Mrs+Saint+Delafield&family=Inter:wght@200..700",
+  },
+  {
+    id: "fraunces",
+    name: "Fraunces · Imperial Script",
+    desc: "Kontemporer-luxury dengan karakter kuat namun lembut",
+    serif: "Fraunces",
+    script: "Imperial Script",
+    sans: "Sora",
+    query:
+      "family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..700,0..100,0..1&family=Imperial+Script&family=Sora:wght@200..700",
+  },
+  {
+    id: "cinzel",
+    name: "Cinzel · Niconne",
+    desc: "Formal monumental dengan sentuhan script klasik",
+    serif: "Cinzel",
+    script: "Niconne",
+    sans: "Mulish",
+    query:
+      "family=Cinzel:wght@400..800&family=Niconne&family=Mulish:wght@200..700",
+  },
 ];
 
 export const getFontPreset = (id: string): FontPreset =>

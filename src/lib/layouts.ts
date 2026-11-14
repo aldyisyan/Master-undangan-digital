@@ -8,7 +8,12 @@ export type LayoutId =
   | "romansa"
   | "sinematik"
   | "monogram"
-  | "duet";
+  | "duet"
+  | "atelier"
+  | "royal"
+  | "garden-party"
+  | "midnight"
+  | "soft-editorial";
 
 export interface LayoutDef {
   id: LayoutId;
@@ -143,6 +148,71 @@ export const LAYOUTS: LayoutDef[] = [
     ornament: "none",
     align: "left",
     radius: "rounded-2xl",
+    portrait: "rounded",
+  },
+  {
+    id: "atelier",
+    name: "Atelier Couture",
+    desc: "Editorial halus dengan nuansa studio fashion yang bersih dan mahal.",
+    hero: "split",
+    petals: false,
+    leaves: true,
+    arch: false,
+    ornament: "light",
+    align: "left",
+    radius: "rounded-[2rem]",
+    portrait: "rounded",
+  },
+  {
+    id: "royal",
+    name: "Royal Heritage",
+    desc: "Formal mewah, monogram dominan, cocok untuk nuansa klasik kerajaan.",
+    hero: "monogram",
+    petals: false,
+    leaves: true,
+    arch: true,
+    ornament: "full",
+    align: "center",
+    radius: "rounded-[2.2rem]",
+    portrait: "circle",
+  },
+  {
+    id: "garden-party",
+    name: "Garden Party",
+    desc: "Lembut, terang, airy, dengan sentuhan taman romantis yang manis.",
+    hero: "center",
+    petals: true,
+    leaves: true,
+    arch: true,
+    ornament: "light",
+    align: "center",
+    radius: "rounded-[2rem]",
+    portrait: "arch",
+  },
+  {
+    id: "midnight",
+    name: "Midnight Luxe",
+    desc: "Sinematik pekat dan dramatis — paling cocok untuk foto yang sangat kuat.",
+    hero: "cinematic",
+    petals: false,
+    leaves: false,
+    arch: false,
+    ornament: "none",
+    align: "left",
+    radius: "rounded-none",
+    portrait: "square",
+  },
+  {
+    id: "soft-editorial",
+    name: "Soft Editorial",
+    desc: "Minimal lembut dengan ruang putih luas dan ritme layout ala majalah premium.",
+    hero: "stack",
+    petals: false,
+    leaves: false,
+    arch: false,
+    ornament: "light",
+    align: "center",
+    radius: "rounded-[2rem]",
     portrait: "rounded",
   },
 ];
