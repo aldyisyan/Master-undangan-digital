@@ -49,7 +49,7 @@ export default function Gift() {
       title="Amplop Digital"
       subtitle="Kehadiran Anda adalah hadiah terindah. Namun bila ingin berbagi tanda kasih, kami sediakan dengan penuh terima kasih."
     >
-      <div className="mx-auto grid max-w-2xl gap-6 sm:grid-cols-2">
+      <div className="mx-auto grid max-w-2xl gap-4 sm:grid-cols-2">
         {s.gifts.map((g, i) => (
           <Reveal key={g.bank + i} delay={0.12 * (i + 1)}>
             <BankCard {...g} />

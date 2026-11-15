@@ -29,7 +29,7 @@ export default function Countdown({ dateISO }: { dateISO: string }) {
   ];
 
   return (
-    <div className="mx-auto flex w-full max-w-md items-stretch justify-center gap-2 sm:max-w-lg sm:gap-4">
+    <div className="mx-auto flex w-full max-w-sm items-stretch justify-center gap-2 sm:max-w-md sm:gap-3">
       {cells.map((c) => (
         <div
           key={c.label}

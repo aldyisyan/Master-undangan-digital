@@ -26,10 +26,10 @@ export default function Closing({ guest }: { guest: GuestPage }) {
         </div>
       )}
 
-      <div className="relative mx-auto max-w-3xl px-6 py-24 text-center sm:py-28">
+      <div className="relative mx-auto max-w-3xl px-6 py-14 text-center sm:py-16">
         <Reveal>
-          <HeartHandshake className="mx-auto h-8 w-8 text-gold-light" />
-          <p className="balance mt-8 font-serif text-[clamp(1rem,3.6vw,1.25rem)] italic leading-relaxed text-cream/85">
+          <HeartHandshake className="mx-auto h-7 w-7 text-gold-light" />
+          <p className="balance mt-5 font-serif text-[clamp(0.95rem,3.2vw,1.15rem)] italic leading-relaxed text-cream/85">
             Merupakan suatu kehormatan dan kebahagiaan bagi kami sekeluarga apabila Anda berkenan
             hadir untuk memberikan doa restu kepada kedua mempelai. Atas kehadiran serta doa yang
             tulus, kami mengucapkan terima kasih yang sebesar-besarnya.
@@ -37,8 +37,8 @@ export default function Closing({ guest }: { guest: GuestPage }) {
           <p className="mt-6 font-sans text-[10px] uppercase tracking-[0.55em] text-gold-light/80">
             {guest.closing}
           </p>
-          <Divider tone="cream" className="mx-auto mt-10 opacity-80" />
-          <h2 className="break-safe mt-10 font-script text-[clamp(2.6rem,12vw,4.5rem)] leading-tight text-gold-light">
+          <Divider tone="cream" className="mx-auto mt-6 opacity-80" />
+          <h2 className="break-safe mt-6 font-script text-[clamp(2.6rem,12vw,4.5rem)] leading-tight text-gold-light">
             {s.bride.short} &amp; {s.groom.short}
           </h2>
           <p className="mt-4 font-sans text-[11px] uppercase tracking-[0.55em] text-cream/60">
@@ -47,7 +47,7 @@ export default function Closing({ guest }: { guest: GuestPage }) {
         </Reveal>
 
         {/* khusus pengantin: akses cepat kembali ke panel admin */}
-        <Reveal delay={0.15} className="mt-20">
+        <Reveal delay={0.15} className="mt-10">
           <p className="font-sans text-[10px] uppercase tracking-[0.45em] text-cream/50">
             Halaman ini dibuat khusus untuk
           </p>

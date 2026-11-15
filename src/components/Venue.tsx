@@ -15,7 +15,7 @@ export default function Venue() {
       subtitle="Acara akan diselenggarakan di pendopo taman terbuka yang asri — silakan gunakan peta di bawah untuk navigasi."
     >
       <Reveal>
-        <div className="overflow-hidden rounded-3xl border border-gold/40 bg-cream shadow-[0_30px_70px_-30px_rgba(53,65,45,0.45)]">
+        <div className="overflow-hidden rounded-2xl border border-gold/30 bg-cream shadow-[0_15px_40px_-15px_rgba(53,65,45,0.3)]">
           <div className="relative h-56 overflow-hidden sm:h-64">
             {photo && <img src={photo} alt={s.venue.name} className="h-full w-full object-cover" />}
             <span className="absolute inset-0 bg-gradient-to-t from-forest-deep/70 via-forest-deep/10 to-transparent" />

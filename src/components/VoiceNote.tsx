@@ -72,7 +72,7 @@ export default function VoiceNote() {
       <Reveal>
         <div className="relative mx-auto max-w-2xl">
           {/* kartu utama */}
-          <div className="relative overflow-hidden rounded-[2.5rem] border border-gold/30 bg-cream/90 p-8 shadow-[0_45px_100px_-20px_rgba(38,47,32,0.25)] backdrop-blur-sm sm:p-12">
+          <div className="relative overflow-hidden rounded-2xl border border-gold/30 bg-cream/90 p-6 shadow-[0_20px_50px_-15px_rgba(38,47,32,0.2)] backdrop-blur-sm sm:p-8">
             <span className="pointer-events-none absolute inset-3 rounded-[2rem] border border-gold/20" />
             <QuoteIcon className="pointer-events-none absolute -right-6 -top-6 h-36 w-36 rotate-12 text-gold/5" />
 

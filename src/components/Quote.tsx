@@ -10,7 +10,7 @@ export default function Quote() {
   const photo = useMediaSrc(s.quotePhoto);
 
   return (
-    <section className="relative mx-auto max-w-6xl px-5 py-16 sm:py-20">
+    <section className="relative mx-auto max-w-6xl px-5 py-10 sm:py-12">
       <div className="grid items-center gap-10 md:grid-cols-[0.9fr_1.1fr] md:gap-16">
         <Reveal className="relative order-2 md:order-1">
           <div className="relative mx-auto w-[min(80vw,24rem)] sm:max-w-sm">

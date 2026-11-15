@@ -49,7 +49,7 @@ function PersonCard({
             )}
           </div>
         </div>
-        <div className="mt-6 text-center sm:mt-8">
+        <div className="mt-4 text-center sm:mt-5">
           <p className="fluid-label font-sans font-medium uppercase tracking-[0.55em] text-gold-dark">
             {role}
           </p>
@@ -76,7 +76,7 @@ export default function Mempelai() {
       title="Dua Insan yang Dipertemukan"
       subtitle="Atas izin Allah SWT dan restu kedua orang tua, kami akan melangsungkan pernikahan."
     >
-      <div className="grid gap-12 sm:grid-cols-2 sm:gap-8 lg:gap-14">
+      <div className="grid gap-8 sm:grid-cols-2 sm:gap-6 lg:gap-10">
         <PersonCard
           photo={s.bride.photo}
           name={s.bride.name}
@@ -94,7 +94,7 @@ export default function Mempelai() {
           L={L}
         />
       </div>
-      <Reveal delay={0.28} className="mt-12 text-center sm:mt-14">
+      <Reveal delay={0.28} className="mt-8 text-center sm:mt-10">
         <span className="fluid-script break-safe font-script text-gold-gradient">{s.hashtag}</span>
       </Reveal>
     </Section>

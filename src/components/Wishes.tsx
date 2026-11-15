@@ -67,12 +67,12 @@ export default function Wishes() {
       title="Doa untuk Kedua Mempelai"
       subtitle="Konfirmasi kehadiran dan titipkan doa terbaikmu — setiap kata sangat berarti bagi kami."
     >
-      <div className="grid gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-14">
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.05fr] lg:gap-10">
         {/* form */}
         <Reveal>
           <form
             onSubmit={submit}
-            className="relative rounded-[2rem] border border-gold/30 bg-cream/70 p-7 shadow-[0_45px_100px_-20px_rgba(38,47,32,0.25)] backdrop-blur-md sm:p-10"
+            className="relative rounded-2xl border border-gold/30 bg-cream/70 p-6 shadow-[0_20px_50px_-15px_rgba(38,47,32,0.2)] backdrop-blur-md sm:p-8"
           >
             <span className="pointer-events-none absolute inset-3 rounded-[1.25rem] border border-gold/20" />
             <div className="relative">

@@ -42,7 +42,7 @@ export default function Section({ id, label, title, subtitle, children, tight }:
   return (
     <section
       id={id}
-      className={`relative px-5 sm:px-6 ${tight ? "py-14 sm:py-16" : "py-20 sm:py-24 lg:py-28"}`}
+      className={`relative px-5 sm:px-6 ${tight ? "py-8 sm:py-10" : "py-12 sm:py-16"}`}
     >
       <div className="mx-auto max-w-4xl">
         <Reveal
@@ -53,12 +53,12 @@ export default function Section({ id, label, title, subtitle, children, tight }:
           <span className="fluid-label font-sans font-medium uppercase tracking-[0.55em] text-gold-dark">
             {label}
           </span>
-          <h2 className="fluid-title balance mt-4 max-w-2xl font-serif font-light tracking-wide text-forest">
+          <h2 className="fluid-title balance mt-3 max-w-2xl font-serif font-light tracking-wide text-forest">
             {title}
           </h2>
           {subtitle && (
             <p
-              className={`balance mt-5 max-w-xl font-serif text-[clamp(1rem,3.5vw,1.15rem)] italic leading-relaxed text-ink/70 ${
+              className={`balance mt-3 max-w-xl font-serif text-[clamp(0.95rem,3vw,1.1rem)] italic leading-relaxed text-ink/70 ${
                 left ? "" : "mx-auto"
               }`}
             >
@@ -66,12 +66,12 @@ export default function Section({ id, label, title, subtitle, children, tight }:
             </p>
           )}
           {L.ornament === "none" ? (
-            <span className="mt-6 h-px w-20 bg-gold/50" />
+            <span className="mt-5 h-px w-16 bg-gold/50" />
           ) : (
-            <Divider className={`mt-6 ${left ? "-ml-2" : ""}`} />
+            <Divider className={`mt-5 ${left ? "-ml-2" : ""}`} />
           )}
         </Reveal>
-        <div className="mt-10 sm:mt-14">{children}</div>
+        <div className="mt-8 sm:mt-10">{children}</div>
       </div>
     </section>
   );

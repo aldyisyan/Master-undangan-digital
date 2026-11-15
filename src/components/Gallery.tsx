@@ -86,7 +86,7 @@ export default function Gallery() {
       </Reveal>
 
       {/* foto berikutnya muncul bertahap saat resolve selesai */}
-      <p className="mt-8 text-center font-sans text-[10px] uppercase tracking-[0.35em] text-ink/40">
+      <p className="mt-5 text-center font-sans text-[10px] uppercase tracking-[0.35em] text-ink/40">
         {photos.length} foto · {s.bride.short} &amp; {s.groom.short}
       </p>
 
