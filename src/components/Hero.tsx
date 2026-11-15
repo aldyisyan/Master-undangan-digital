@@ -42,7 +42,7 @@ export default function Hero({ guest, opened }: Props) {
   // parallax latar hero — foto bergerak lebih lambat dari konten
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const bgParallax = useTransform(scrollYProgress, [0, 1], ["0%", "35%"]);
+  const bgParallax = useTransform(scrollYProgress, [0, 1], ["0%", "28%"]);
 
   const Names = (
     <motion.h1 variants={item} className="font-script text-forest">
@@ -58,25 +58,28 @@ export default function Hero({ guest, opened }: Props) {
     <section
       ref={heroRef}
       className={`relative flex min-h-svh flex-col overflow-hidden ${
-        cinematic ? "justify-end" : split ? "justify-end sm:justify-center" : "items-center justify-center"
+        cinematic ? "justify-center" : split ? "justify-end sm:justify-center" : "items-center justify-center"
       }`}
     >
       {/* ---------- latar ---------- */}
       {cinematic ? (
         <>
-          {cinematicPhoto && (
-            <motion.img
-              initial={{ scale: 1.08 }}
-              animate={opened ? { scale: 1 } : {}}
-              style={{ y: bgParallax }}
-              transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
-              src={cinematicPhoto}
-              alt=""
-              className="pointer-events-none absolute inset-[-20%] h-[140%] w-full object-cover will-change-transform"
-            />
-          )}
-          {!cinematicPhoto && <div className="pointer-events-none absolute inset-0 bg-forest-deep" />}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-forest-deep/20 via-forest-deep/20 to-forest-deep/95" />
+          <div className="absolute inset-0 z-0 bg-forest-deep" />
+          <div className="absolute inset-4 z-10 overflow-hidden rounded-[2rem] border border-gold/15 sm:inset-6 md:inset-8">
+            {cinematicPhoto && (
+              <motion.img
+                initial={{ scale: 1.12 }}
+                animate={opened ? { scale: 1 } : {}}
+                style={{ y: bgParallax }}
+                transition={{ duration: 2.8, ease: [0.22, 1, 0.36, 1] }}
+                src={cinematicPhoto}
+                alt=""
+                className="absolute inset-[-15%] h-[130%] w-full object-cover will-change-transform"
+              />
+            )}
+            {!cinematicPhoto && <div className="absolute inset-0 bg-forest-deep" />}
+            <div className="absolute inset-0 bg-gradient-to-b from-forest-deep/15 via-forest-deep/10 to-forest-deep/75" />
+          </div>
         </>
       ) : bg ? (
         <>
@@ -107,8 +110,8 @@ export default function Hero({ guest, opened }: Props) {
 
       {L.leaves && (
         <>
-          <LeafSprig className="leaf-float pointer-events-none absolute -left-5 top-[22%] w-12 opacity-50 sm:w-16 md:left-16 md:w-20 md:opacity-60" />
-          <LeafSprig className="leaf-float pointer-events-none absolute -right-4 bottom-[22%] w-10 -scale-x-100 opacity-40 sm:w-14 md:right-20 md:w-16 md:opacity-50" />
+          <LeafSprig className="leaf-float pointer-events-none absolute -left-5 top-[22%] z-20 w-12 opacity-50 sm:w-16 md:left-16 md:w-20 md:opacity-60" />
+          <LeafSprig className="leaf-float pointer-events-none absolute -right-4 bottom-[22%] z-20 w-10 -scale-x-100 opacity-40 sm:w-14 md:right-20 md:w-16 md:opacity-50" />
         </>
       )}
       {L.petals && <Petals density={18} />}
@@ -119,38 +122,42 @@ export default function Hero({ guest, opened }: Props) {
           variants={container}
           initial="hidden"
           animate={opened ? "show" : "hidden"}
-          className="safe-x safe-bottom relative z-20 mx-auto w-full max-w-6xl pb-20 pt-36 text-left sm:pb-24"
+          className="safe-x relative z-20 mx-auto flex w-full max-w-6xl flex-col items-center px-10 text-center sm:px-16"
         >
-          <motion.p
-            variants={item}
-            className="fluid-label font-sans font-medium uppercase tracking-[0.6em] text-gold-light"
-          >
-            {L.eyebrow}
-          </motion.p>
-          <motion.h1 variants={item} className="balance mt-5 max-w-5xl font-script text-cream">
-            <span className="block text-[clamp(3.8rem,17vw,9rem)] leading-[0.86] sm:inline">
+          <motion.div variants={item} className="flex items-center gap-3">
+             <span className="h-px w-6 bg-gold-light/40" />
+             <p className="fluid-label font-sans font-medium uppercase tracking-[0.65em] text-gold-light">
+               {L.eyebrow}
+             </p>
+             <span className="h-px w-6 bg-gold-light/40" />
+          </motion.div>
+
+          <motion.h1 variants={item} className="balance mt-8 font-script text-cream">
+            <span className="block text-[clamp(4.2rem,18vw,10rem)] leading-[0.8] sm:inline">
               {s.bride.short}
             </span>
-            <span className="mx-4 block font-serif text-[clamp(1.6rem,5vw,3.2rem)] italic text-gold-light sm:inline">
+            <span className="mx-4 block font-serif text-[clamp(1.8rem,6vw,3.5rem)] italic text-gold-light sm:inline">
               &amp;
             </span>
-            <span className="block text-[clamp(3.8rem,17vw,9rem)] leading-[0.86] sm:inline">
+            <span className="block text-[clamp(4.2rem,18vw,10rem)] leading-[0.8] sm:inline">
               {s.groom.short}
             </span>
           </motion.h1>
+
           <motion.div
             variants={item}
-            className="mt-9 flex flex-col gap-3 border-l border-gold-light/40 pl-5 sm:flex-row sm:items-center sm:gap-8"
+            className="mt-12 flex flex-col items-center gap-4"
           >
-            <p className="font-serif text-[clamp(1.1rem,4vw,1.5rem)] font-light tracking-wide text-cream">{s.dateLabel}</p>
-            <p className="font-sans text-[9px] uppercase tracking-[0.4em] text-cream/70">
-              Untuk {guest.title}
+            <p className="font-serif text-[clamp(1.1rem,4vw,1.6rem)] font-light tracking-[0.12em] text-cream/90">{s.dateLabel}</p>
+            <div className="h-8 w-px bg-gold-light/30" />
+            <p className="font-sans text-[10px] uppercase tracking-[0.45em] text-gold-light/70">
+              Undangan untuk <span className="font-semibold text-cream">{guest.title}</span>
             </p>
           </motion.div>
         </motion.div>
       ) : split ? (
         /* ====== EDITORIAL MAJALAH ====== */
-        <div className="relative z-20 mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 items-center gap-8 px-6 py-16 sm:flex-none sm:gap-12 sm:py-20 md:grid-cols-[1.05fr_0.95fr] md:px-10">
+        <div className="relative z-20 mx-auto grid w-full max-w-5xl flex-1 grid-cols-1 items-center gap-12 px-8 py-20 sm:flex-none sm:py-24 md:grid-cols-[1fr_1fr] md:px-12">
           <motion.div
             variants={container}
             initial="hidden"
@@ -159,33 +166,33 @@ export default function Hero({ guest, opened }: Props) {
           >
             <motion.div
               variants={item}
-              className="fluid-label inline-flex items-center gap-3 font-sans font-medium uppercase tracking-[0.42em] text-gold-dark"
+              className="fluid-label inline-flex items-center gap-4 font-sans font-medium uppercase tracking-[0.6em] text-gold-dark"
             >
-              <span className="h-px w-8 bg-gold/60" />
+              <span className="h-px w-6 bg-gold/50" />
               {L.eyebrow}
             </motion.div>
-            <div className="mt-6 md:[&_.fluid-display]:text-[clamp(3rem,8vw,6.5rem)]">{Names}</div>
-            <motion.div variants={item} className="mt-8">
-              <div className="mx-auto h-px w-28 bg-gold/50 md:mx-0" />
-              <p className="mt-5 font-serif text-[clamp(1.05rem,3.4vw,1.5rem)] font-medium text-ink">
+            <div className="mt-8 md:[&_.fluid-display]:text-[clamp(2.8rem,10vw,6rem)]">{Names}</div>
+            <motion.div variants={item} className="mt-10">
+              <div className="mx-auto h-px w-24 bg-gold/40 md:mx-0" />
+              <p className="mt-6 font-serif text-[clamp(1.1rem,3.8vw,1.4rem)] font-light tracking-wide text-ink">
                 {s.dateLabel}
               </p>
-              <p className="mt-4 font-sans text-[10px] uppercase tracking-[0.26em] text-forest/70">
-                Untuk {guest.title}
-              </p>
+              <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/5 px-4 py-1.5 font-sans text-[9px] uppercase tracking-[0.35em] text-forest/80">
+                Invitation for <span className="font-semibold text-forest">{guest.title}</span>
+              </div>
             </motion.div>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.94 }}
+            initial={{ opacity: 0, scale: 0.96 }}
             animate={opened ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 1.1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 1.3, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
             className="order-1 md:order-2"
           >
-            <div className="relative mx-auto w-[min(78vw,22rem)] md:w-full md:max-w-sm">
-              <span className="pointer-events-none absolute -inset-3 rounded-2xl border border-gold/35" />
-              <div className="overflow-hidden rounded-2xl bg-paper shadow-[0_30px_70px_-30px_rgba(0,0,0,0.45)]">
-                {portrait && <img src={portrait} alt="" className="aspect-[3/4] w-full object-cover" />}
+            <div className="relative mx-auto w-[min(72vw,20rem)] md:w-full md:max-w-[22rem]">
+              <span className="pointer-events-none absolute -inset-4 rounded-3xl border border-gold/25" />
+              <div className="overflow-hidden rounded-2xl bg-paper shadow-[0_45px_100px_-30px_rgba(38,47,32,0.3)]">
+                {portrait && <img src={portrait} alt="" className="aspect-[3/4.5] w-full object-cover" />}
               </div>
             </div>
           </motion.div>
@@ -354,19 +361,26 @@ export default function Hero({ guest, opened }: Props) {
         </motion.div>
       )}
 
+      {/* vignette effect */}
+      {cinematic && <div className="pointer-events-none absolute inset-0 z-10 shadow-[inset_0_0_120px_rgba(0,0,0,0.4)] sm:shadow-[inset_0_0_200px_rgba(0,0,0,0.5)]" />}
+
       {/* ---------- indikator gulir ---------- */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={opened ? { opacity: 1 } : {}}
-        transition={{ delay: 2, duration: 1 }}
-        className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2"
+        initial={{ opacity: 0, y: 10 }}
+        animate={opened ? { opacity: 1, y: 0 } : {}}
+        transition={{ delay: 2.2, duration: 1.2, ease: "easeOut" }}
+        className="absolute bottom-8 left-1/2 z-30 flex -translate-x-1/2 flex-col items-center gap-3"
       >
-        <span className={`font-sans text-[9px] uppercase tracking-[0.4em] ${cinematic ? "text-cream/60" : "text-ink/50"}`}>
+        <span className={`font-sans text-[8px] font-medium uppercase tracking-[0.5em] ${cinematic ? "text-cream/50" : "text-ink/40"}`}>
           Gulir
         </span>
-        <span className={`flex h-9 w-5 justify-center rounded-full border pt-1.5 ${cinematic ? "border-gold-light/60" : "border-gold/60"}`}>
-          <span className={`scroll-hint-dot h-1.5 w-1.5 rounded-full ${cinematic ? "bg-gold-light" : "bg-gold"}`} />
-        </span>
+        <div className={`flex h-10 w-6 justify-center rounded-full border pt-2 ${cinematic ? "border-gold-light/30" : "border-gold/30"}`}>
+          <motion.span
+            animate={{ y: [0, 14, 0], opacity: [0, 1, 0] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+            className={`h-1.5 w-1.5 rounded-full ${cinematic ? "bg-gold-light" : "bg-gold"}`}
+          />
+        </div>
       </motion.div>
     </section>
   );
