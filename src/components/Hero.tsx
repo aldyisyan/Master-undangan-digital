@@ -65,25 +65,25 @@ export default function Hero({ guest, opened }: Props) {
       {cinematic ? (
         <>
           <div className="absolute inset-0 z-0 bg-forest-deep" />
-          <div className="absolute inset-4 z-10 overflow-hidden rounded-[2rem] border border-gold/15 sm:inset-6 md:inset-8">
-            {cinematicPhoto && (
-              <motion.img
-                initial={{ scale: 1.12 }}
-                animate={opened ? { scale: 1 } : {}}
-                style={{ y: bgParallax }}
-                transition={{ duration: 2.8, ease: [0.22, 1, 0.36, 1] }}
-                src={cinematicPhoto}
-                alt=""
-                className="absolute inset-[-15%] h-[130%] w-full object-cover will-change-transform"
-              />
-            )}
-            {!cinematicPhoto && <div className="absolute inset-0 bg-forest-deep" />}
-            <div className="absolute inset-0 bg-gradient-to-b from-forest-deep/15 via-forest-deep/10 to-forest-deep/75" />
-          </div>
+          {cinematicPhoto && (
+            <motion.img
+              initial={{ scale: 1.08 }}
+              animate={opened ? { scale: 1 } : {}}
+              style={{ y: bgParallax }}
+              transition={{ duration: 2.8, ease: [0.22, 1, 0.36, 1] }}
+              src={cinematicPhoto}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover will-change-transform"
+            />
+          )}
+          {!cinematicPhoto && <div className="absolute inset-0 bg-forest-deep" />}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/10 to-black/55" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_45%,rgba(10,16,24,0.3)_100%)]" />
+          <div className="pointer-events-none absolute inset-3 rounded-[1.75rem] border border-white/8 sm:inset-4 md:inset-5" />
         </>
       ) : bg ? (
         <>
-          <motion.img src={bg} alt="" style={{ y: bgParallax }} className="pointer-events-none absolute inset-[-20%] h-[140%] w-full object-cover will-change-transform" />
+          <motion.img src={bg} alt="" style={{ y: bgParallax }} className="pointer-events-none absolute left-0 top-[-20%] h-[140%] w-full object-cover will-change-transform" />
           <div
             className="pointer-events-none absolute inset-0"
             style={{ backgroundColor: "var(--pal-ivory)", opacity: dim }}
@@ -132,7 +132,7 @@ export default function Hero({ guest, opened }: Props) {
              <span className="h-px w-6 bg-gold-light/40" />
           </motion.div>
 
-          <motion.h1 variants={item} className="balance mt-8 font-script text-cream">
+          <motion.h1 variants={item} className="balance mt-8 font-script text-cream drop-shadow-[0_6px_18px_rgba(0,0,0,0.35)]">
             <span className="block text-[clamp(4.2rem,18vw,10rem)] leading-[0.8] sm:inline">
               {s.bride.short}
             </span>
@@ -148,7 +148,7 @@ export default function Hero({ guest, opened }: Props) {
             variants={item}
             className="mt-12 flex flex-col items-center gap-4"
           >
-            <p className="font-serif text-[clamp(1.1rem,4vw,1.6rem)] font-light tracking-[0.12em] text-cream/90">{s.dateLabel}</p>
+            <p className="font-serif text-[clamp(1.1rem,4vw,1.6rem)] font-light tracking-[0.12em] text-cream/90 drop-shadow-[0_4px_12px_rgba(0,0,0,0.28)]">{s.dateLabel}</p>
             <div className="h-8 w-px bg-gold-light/30" />
             <p className="font-sans text-[10px] uppercase tracking-[0.45em] text-gold-light/70">
               Undangan untuk <span className="font-semibold text-cream">{guest.title}</span>

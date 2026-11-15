@@ -28,7 +28,7 @@ export default function Closing({ guest }: { guest: GuestPage }) {
             src={bg}
             alt=""
             style={{ y: bgY }}
-            className="pointer-events-none absolute inset-[-15%] h-[130%] w-full object-cover opacity-25 will-change-transform"
+            className="pointer-events-none absolute left-0 top-[-15%] h-[130%] w-full object-cover opacity-25 will-change-transform"
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-forest-deep via-forest-deep/80 to-forest-deep" />
         </>

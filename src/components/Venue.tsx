@@ -28,7 +28,7 @@ export default function Venue() {
                 src={photo}
                 alt={s.venue.name}
                 style={{ y: photoY }}
-                className="absolute inset-[-20%] h-[140%] w-full object-cover will-change-transform"
+                className="absolute left-0 top-[-20%] h-[140%] w-full object-cover will-change-transform"
               />
             )}
             <span className="absolute inset-0 bg-gradient-to-t from-forest-deep/70 via-forest-deep/10 to-transparent" />
