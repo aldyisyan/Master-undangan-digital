@@ -1,6 +1,7 @@
 import { CalendarHeart, Clock3 } from "lucide-react";
 import Section, { Reveal } from "./Section";
 import Countdown from "./Countdown";
+import SaveToCalendar from "./SaveToCalendar";
 import { useSettings } from "../lib/settings";
 
 export default function Events() {
@@ -40,6 +41,15 @@ export default function Events() {
                 <p className="mx-auto mt-7 max-w-xs font-serif text-[15px] italic leading-relaxed text-ink/75">
                   {ev.note}
                 </p>
+
+                {/* Tombol simpan ke kalender per acara */}
+                <div className="flex justify-center">
+                  <SaveToCalendar
+                    eventTitle={ev.title}
+                    startISO={s.dateISO}
+                    durationHours={2}
+                  />
+                </div>
               </div>
             </div>
           </Reveal>

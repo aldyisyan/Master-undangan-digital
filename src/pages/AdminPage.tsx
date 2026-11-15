@@ -28,6 +28,7 @@ import Code from "../components/Code";
 import { Field, Area, Card, ImagePicker, AudioPicker } from "../components/admin/fields";
 import GuestBookPanel from "../components/admin/GuestBookPanel";
 import GalleryManager from "../components/admin/GalleryManager";
+import TemplatePreviewCard from "../components/admin/TemplatePreview";
 import { Wreath } from "../components/Ornament";
 
 const SESSION_KEY = "rk-admin-auth";
@@ -394,92 +395,114 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="grain min-h-svh bg-forest-deep">
-      {/* bilah atas */}
-      <header className="sticky top-0 z-40 border-b border-cream/10 bg-forest-deep/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-3.5">
+    <div className="grain flex min-h-svh bg-forest-deep">
+
+      {/* ===== SIDEBAR KIRI — desktop ===== */}
+      <aside className="sticky top-0 hidden h-svh w-60 shrink-0 flex-col border-r border-cream/10 bg-forest-deep/98 backdrop-blur-md lg:flex">
+        <div className="border-b border-cream/10 px-5 py-5">
           <div className="flex items-center gap-3">
             <span className="flex h-9 w-9 items-center justify-center rounded-full border border-gold/50">
               <ShieldCheck className="h-4 w-4 text-gold-light" />
             </span>
             <div>
-              <p className="font-serif text-lg font-semibold leading-none text-cream">Panel Admin</p>
-              <p className="mt-1 font-sans text-[9px] uppercase tracking-[0.3em] text-cream/50">
+              <p className="font-serif text-[15px] font-semibold leading-none text-cream">Panel Admin</p>
+              <p className="mt-1 font-sans text-[9px] uppercase tracking-[0.25em] text-cream/50">
                 {draft.bride.short} &amp; {draft.groom.short}
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <a
-              href="#/"
-              className="inline-flex items-center gap-1.5 rounded-full border border-cream/20 px-4 py-2 font-sans text-[10px] font-medium uppercase tracking-[0.2em] text-cream/70 transition-colors hover:border-gold-light/60 hover:text-gold-light"
-            >
-              <ExternalLink className="h-3.5 w-3.5" /> Undangan
-            </a>
-            <button
-              onClick={logout}
-              className="inline-flex items-center gap-1.5 rounded-full border border-cream/20 px-4 py-2 font-sans text-[10px] font-medium uppercase tracking-[0.2em] text-cream/70 transition-colors hover:border-rose/70 hover:text-rose"
-            >
-              <LogOut className="h-3.5 w-3.5" /> Keluar
-            </button>
-            <button
-              onClick={save}
-              disabled={!dirty || syncing}
-              className={`inline-flex items-center gap-2 rounded-full px-6 py-2 font-sans text-[10px] font-semibold uppercase tracking-[0.25em] shadow-md transition-all ${
-                saved
-                  ? "bg-gold-light text-forest"
-                  : "bg-gold text-forest-deep hover:bg-gold-light disabled:cursor-not-allowed disabled:opacity-40"
-              }`}
-            >
-              {saved ? <Check className="h-3.5 w-3.5" /> : <Save className="h-3.5 w-3.5" />}
-              {syncing
-                ? "Menyinkronkan…"
-                : saved
-                  ? "Tersimpan"
-                  : dirty
-                    ? cloudAdmin
-                      ? "Simpan & Sinkron"
-                      : "Simpan Perubahan"
-                    : "Tersimpan"}
-            </button>
-          </div>
         </div>
 
-        {/* tab */}
-        <nav className="mx-auto flex max-w-6xl flex-wrap gap-1.5 px-5 pb-3">
+        <nav className="flex-1 overflow-y-auto py-3 [scrollbar-width:none]">
+          <p className="mb-1 px-5 font-sans text-[8px] uppercase tracking-[0.35em] text-cream/30">Menu</p>
           {TABS.map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 font-sans text-[10px] font-medium uppercase tracking-[0.16em] transition-colors sm:gap-2 sm:px-4 sm:tracking-[0.2em] ${
+              className={'flex w-full items-center gap-3 border-r-2 px-5 py-3 text-left transition-all ' + (
                 tab === t.id
-                  ? "bg-gold text-forest-deep shadow-md"
-                  : "text-cream/60 hover:bg-cream/10 hover:text-cream"
-              }`}
+                  ? 'border-gold bg-white/5 text-gold-light'
+                  : 'border-transparent text-cream/50 hover:bg-white/5 hover:text-cream'
+              )}
             >
-              <t.icon className="h-3.5 w-3.5 shrink-0" />
-              {t.label}
+              <t.icon className={'h-4 w-4 shrink-0 ' + (tab === t.id ? 'text-gold-light' : 'text-cream/35')} />
+              <span className="font-sans text-[11px] font-medium uppercase tracking-[0.18em]">{t.label}</span>
+              {tab === t.id && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-gold" />}
             </button>
           ))}
         </nav>
-      </header>
 
-      <main className="mx-auto max-w-4xl space-y-6 px-5 py-8 pb-24">
-        {/* info penyimpanan lokal */}
-        <div className="flex items-start gap-3 rounded-2xl border border-gold/25 bg-forest/60 px-5 py-4">
-          <Info className="mt-0.5 h-4 w-4 shrink-0 text-gold-light" />
-          <p className="font-sans text-xs leading-relaxed text-cream/70">
-            Semua perubahan tersimpan aman di perangkat ini (localStorage untuk teks &amp; daftar tamu,
-            IndexedDB untuk foto &amp; audio) dan langsung mengubah tampilan undangan. Buat undangan
-            personal per nama tamu di tab{" "}
-            <span className="font-semibold text-gold-light">Tamu &amp; WA</span>, kirim lewat WhatsApp,
-            lalu tekan <span className="font-semibold text-gold-light">Simpan Perubahan</span> bila Anda
-            mengubah isi undangan. Tautan Panel Admin{" "}
-            <span className="font-semibold text-gold-light">tidak pernah ditampilkan kepada tamu</span>{" "}
-            — akses kembali kapan saja melalui{" "}
-            <span className="font-mono text-gold-light">#/admin</span>.
-          </p>
+        <div className="space-y-2 border-t border-cream/10 p-4">
+          <button
+            onClick={save}
+            disabled={!dirty || syncing}
+            className={'flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-sans text-[10px] font-semibold uppercase tracking-[0.2em] shadow transition-all ' + (
+              saved ? 'bg-gold-light text-forest' : 'bg-gold text-forest-deep hover:bg-gold-light disabled:cursor-not-allowed disabled:opacity-40'
+            )}
+          >
+            {saved ? <Check className="h-3.5 w-3.5" /> : <Save className="h-3.5 w-3.5" />}
+            {syncing ? 'Menyinkron…' : saved ? 'Tersimpan' : dirty ? (cloudAdmin ? 'Simpan & Sinkron' : 'Simpan') : 'Tersimpan'}
+          </button>
+          <div className="flex gap-2">
+            <a href="#/" className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-cream/15 py-2 font-sans text-[9px] font-medium uppercase tracking-[0.18em] text-cream/50 transition-colors hover:border-gold/40 hover:text-gold-light">
+              <ExternalLink className="h-3 w-3" /> Undangan
+            </a>
+            <button onClick={logout} className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-cream/15 py-2 font-sans text-[9px] font-medium uppercase tracking-[0.18em] text-cream/50 transition-colors hover:border-rose/50 hover:text-rose">
+              <LogOut className="h-3 w-3" /> Keluar
+            </button>
+          </div>
         </div>
+      </aside>
+
+      {/* ===== AREA KONTEN ===== */}
+      <div className="flex min-w-0 flex-1 flex-col">
+
+        {/* topbar mobile */}
+        <header className="sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-cream/10 bg-forest-deep/95 px-4 py-3 backdrop-blur-md lg:hidden">
+          <div className="flex items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-gold/50">
+              <ShieldCheck className="h-3.5 w-3.5 text-gold-light" />
+            </span>
+            <p className="font-serif text-[13px] font-semibold text-cream">Panel Admin</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <a href="#/" className="inline-flex items-center gap-1 rounded-full border border-cream/20 px-3 py-1.5 font-sans text-[9px] text-cream/70">
+              <ExternalLink className="h-3 w-3" /> Undangan
+            </a>
+            <button onClick={save} disabled={!dirty || syncing} className="inline-flex items-center gap-1.5 rounded-full bg-gold px-4 py-1.5 font-sans text-[9px] font-semibold text-forest-deep disabled:opacity-40">
+              {saved ? <Check className="h-3 w-3" /> : <Save className="h-3 w-3" />}
+              {saved ? 'OK' : 'Simpan'}
+            </button>
+          </div>
+        </header>
+
+        {/* tab mobile scroll horizontal */}
+        <div className="no-bar overflow-x-auto border-b border-cream/10 bg-forest-deep/80 lg:hidden">
+          <nav className="flex gap-1 px-3 py-2">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={'inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 font-sans text-[9px] font-medium uppercase tracking-[0.14em] transition-colors ' + (
+                  tab === t.id ? 'bg-gold text-forest-deep' : 'text-cream/55 hover:bg-cream/10 hover:text-cream'
+                )}
+              >
+                <t.icon className="h-3.5 w-3.5 shrink-0" />{t.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* konten tab */}
+        <main className="flex-1 space-y-6 px-5 py-8 pb-28 lg:max-w-5xl lg:px-8">
+          <div className="flex items-start gap-3 rounded-2xl border border-gold/20 bg-forest/50 px-5 py-4">
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-gold-light" />
+            <p className="font-sans text-xs leading-relaxed text-cream/65">
+              Semua perubahan tersimpan di perangkat ini. Buat undangan personal di tab{' '}
+              <span className="font-semibold text-gold-light">Tamu &amp; WA</span>, lalu tekan{' '}
+              <span className="font-semibold text-gold-light">Simpan</span> untuk menerapkan ke semua perangkat.
+            </p>
+          </div>
 
         {/* ================= TAB: MEMPELAI ================= */}
         {tab === "mempelai" && (
@@ -537,101 +560,15 @@ export default function AdminPage() {
               desc="Mengubah komposisi hero, kepadatan ornamen, bentuk foto, dan perataan judul di seluruh undangan."
             >
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {LAYOUTS.map((l) => {
-                  const active = draft.layout === l.id;
-                  return (
-                    <button
-                      key={l.id}
-                      type="button"
-                      onClick={() => patch({ layout: l.id })}
-                      className={`rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 ${
-                        active
-                          ? "border-gold bg-cream shadow-[0_14px_30px_-14px_rgba(138,106,59,0.5)]"
-                          : "border-gold/25 bg-cream/70 hover:border-gold/60"
-                      }`}
-                    >
-                      <span className="flex items-center justify-between gap-2">
-                        <span className="font-serif text-lg font-semibold text-forest">{l.name}</span>
-                        {active && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-forest px-2.5 py-1 font-sans text-[8px] font-semibold uppercase tracking-[0.2em] text-cream">
-                            <Check className="h-2.5 w-2.5 text-gold-light" /> Aktif
-                          </span>
-                        )}
-                      </span>
-                      <span className="mt-1 block font-sans text-[11px] leading-relaxed text-ink/55">
-                        {l.desc}
-                      </span>
-                      <span className="mt-2 inline-flex rounded-full border border-gold/25 bg-paper/80 px-2.5 py-1 font-sans text-[9px] uppercase tracking-[0.18em] text-gold-dark">
-                        {l.eyebrow}
-                      </span>
-                      <span className="mt-2 block font-serif text-[13px] italic leading-relaxed text-ink/65">
-                        {l.strength}
-                      </span>
-                      {/* sketsa mini */}
-                      <span
-                        className={`mt-3 flex h-14 items-center justify-center gap-1.5 overflow-hidden rounded-lg px-3 ${
-                          l.hero === "cinematic" ? "bg-forest-deep" : "bg-paper/70"
-                        }`}
-                      >
-                        {l.hero === "split" ? (
-                          <>
-                            <span className="flex flex-1 flex-col gap-1">
-                              <span className="h-1.5 w-10 rounded bg-forest/50" />
-                              <span className="h-1 w-8 rounded bg-gold/60" />
-                            </span>
-                            <span className="h-9 w-7 rounded bg-forest/25" />
-                          </>
-                        ) : l.hero === "frame" ? (
-                          <span className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-gold/50">
-                            <span className="h-1.5 w-4 rounded bg-forest/50" />
-                          </span>
-                        ) : l.hero === "cinematic" ? (
-                          <span className="flex h-full w-full flex-col justify-end gap-1 pb-1">
-                            <span className="h-1.5 w-20 rounded bg-cream/80" />
-                            <span className="h-1 w-12 rounded bg-gold-light/70" />
-                          </span>
-                        ) : l.hero === "cascade" ? (
-                          <span className="flex w-24 flex-col gap-0.5">
-                            <span className="h-1.5 w-14 self-start rounded bg-forest/50" />
-                            <span className="h-1 w-4 self-center rounded bg-gold/60" />
-                            <span className="h-1.5 w-14 self-end rounded bg-forest/50" />
-                          </span>
-                        ) : l.hero === "monogram" ? (
-                          <span className="relative flex h-11 w-20 items-center justify-center">
-                            <span className="absolute font-serif text-4xl text-gold/20">KB</span>
-                            <span className="relative h-1.5 w-12 rounded bg-forest/60" />
-                          </span>
-                        ) : l.hero === "heritage" ? (
-                          <span className="relative flex h-11 w-24 flex-col items-center justify-center gap-1">
-                            <span className="h-4 w-4 rounded-full border border-gold/60" />
-                            <span className="h-1.5 w-14 rounded bg-forest/60" />
-                            <span className="h-1 w-8 rounded bg-gold/60" />
-                            <span className="h-1.5 w-14 rounded bg-forest/60" />
-                          </span>
-                        ) : l.hero === "banner" ? (
-                          <span className="flex w-24 flex-col items-center gap-1 rounded-md border border-gold/40 px-2 py-1.5">
-                            <span className="h-1 w-10 rounded bg-gold/60" />
-                            <span className="h-1.5 w-16 rounded bg-forest/60" />
-                            <span className="h-1 w-4 rounded bg-gold/50" />
-                            <span className="h-1.5 w-16 rounded bg-forest/60" />
-                          </span>
-                        ) : l.hero === "duet" ? (
-                          <span className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-1">
-                            <span className="h-2 rounded bg-forest/50" />
-                            <span className="h-5 w-5 rounded-full border border-gold/60" />
-                            <span className="h-2 rounded bg-forest/50" />
-                          </span>
-                        ) : (
-                          <span className="flex flex-col items-center gap-1">
-                            <span className="h-1.5 w-14 rounded bg-forest/50" />
-                            <span className="h-1 w-8 rounded bg-gold/60" />
-                            <span className="h-1 w-11 rounded bg-forest/25" />
-                          </span>
-                        )}
-                      </span>
-                    </button>
-                  );
-                })}
+                {LAYOUTS.map((l) => (
+                  <TemplatePreviewCard
+                    key={l.id}
+                    layout={l}
+                    draft={draft}
+                    active={draft.layout === l.id}
+                    onClick={() => patch({ layout: l.id })}
+                  />
+                ))}
               </div>
             </Card>
 
@@ -1366,6 +1303,7 @@ create policy "hapus anon" on storage.objects
           </>
         )}
 
+
         {/* zona berbahaya */}
         <div className="rounded-2xl border border-rose/40 bg-rose/10 p-5 sm:p-7">
           <h3 className="font-serif text-xl font-semibold text-cream">Zona Berbahaya</h3>
@@ -1383,24 +1321,25 @@ create policy "hapus anon" on storage.objects
           </button>
         </div>
 
-        <p className="text-center font-sans text-[10px] tracking-[0.25em] text-cream/35">
-          PANEL ADMIN · {draft.bride.short.toUpperCase()} &amp; {draft.groom.short.toUpperCase()}
-        </p>
-      </main>
+          <p className="text-center font-sans text-[10px] tracking-[0.25em] text-cream/35">
+            PANEL ADMIN · {draft.bride.short.toUpperCase()} &amp; {draft.groom.short.toUpperCase()}
+          </p>
+        </main>
 
-      {/* tombol simpan melayang saat ada perubahan */}
-      {dirty && (
-        <motion.button
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          onClick={save}
-          disabled={syncing}
-          style={{ bottom: "max(1.25rem, env(safe-area-inset-bottom))" }}
-          className="fixed left-1/2 z-40 max-w-[calc(100vw-2rem)] -translate-x-1/2 truncate rounded-full bg-gold px-6 py-3.5 font-sans text-[11px] font-semibold uppercase tracking-[0.22em] text-forest-deep shadow-2xl transition-colors hover:bg-gold-light disabled:opacity-60 sm:px-8 sm:text-xs sm:tracking-[0.3em]"
-        >
-          {syncing ? "Mengunggah ke cloud…" : cloudAdmin ? "Simpan & Sinkron ke Cloud" : "Simpan Perubahan"}
-        </motion.button>
-      )}
+        {dirty && (
+          <motion.button
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            onClick={save}
+            disabled={syncing}
+            style={{ bottom: 'max(1.25rem, env(safe-area-inset-bottom))' }}
+            className="fixed left-1/2 z-50 max-w-[calc(100vw-2rem)] -translate-x-1/2 truncate rounded-full bg-gold px-6 py-3.5 font-sans text-[11px] font-semibold uppercase tracking-[0.22em] text-forest-deep shadow-2xl transition-colors hover:bg-gold-light disabled:opacity-60"
+          >
+            {syncing ? 'Mengunggah…' : cloudAdmin ? 'Simpan & Sinkron ke Cloud' : 'Simpan Perubahan'}
+          </motion.button>
+        )}
+
+      </div>
     </div>
   );
 }
