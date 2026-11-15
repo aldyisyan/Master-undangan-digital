@@ -536,7 +536,7 @@ export default function AdminPage() {
               title="Template Tata Letak"
               desc="Mengubah komposisi hero, kepadatan ornamen, bentuk foto, dan perataan judul di seluruh undangan."
             >
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {LAYOUTS.map((l) => {
                   const active = draft.layout === l.id;
                   return (
@@ -639,7 +639,7 @@ export default function AdminPage() {
               title="Paket Font"
               desc="Setiap paket memuat tiga jenis huruf: judul, tulisan tangan untuk nama, dan teks antarmuka."
             >
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {FONT_PRESETS.map((f) => {
                   const active = draft.fontId === f.id;
                   return (

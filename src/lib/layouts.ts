@@ -16,7 +16,15 @@ export type LayoutId =
   | "soft-editorial"
   | "adat-jawa"
   | "adat-minang"
-  | "adat-bali";
+  | "adat-bali"
+  | "adat-sunda"
+  | "forest-fairytale"
+  | "floral-arch"
+  | "rustic-earth"
+  | "modern-korea"
+  | "islamic-nazra"
+  | "tropical-soiree"
+  | "gebyok-heritage";
 
 export interface LayoutDef {
   id: LayoutId;
@@ -294,6 +302,126 @@ export const LAYOUTS: LayoutDef[] = [
     align: "center",
     radius: "rounded-[2rem]",
     portrait: "circle",
+  },
+  {
+    id: "adat-sunda",
+    name: "Adat Sunda · Nincak Endog",
+    desc: "Lembut, teduh, dan anggun dengan rasa kekeluargaan yang hangat.",
+    eyebrow: "Panganten Sunda",
+    strength: "Bagus untuk pasangan yang ingin nuansa adat yang halus, tenang, dan sangat sopan secara visual.",
+    hero: "heritage",
+    petals: true,
+    leaves: true,
+    arch: true,
+    ornament: "light",
+    align: "center",
+    radius: "rounded-[2.1rem]",
+    portrait: "arch",
+  },
+  {
+    id: "forest-fairytale",
+    name: "Forest Fairytale",
+    desc: "Dongeng hutan, whimsical, romantis, dengan sentuhan rusa dan taman sunyi.",
+    eyebrow: "Once Upon A Wedding",
+    strength: "Paling cocok untuk foto outdoor, hutan pinus, kebun, atau tema dongeng yang dreamy.",
+    hero: "frame",
+    petals: true,
+    leaves: true,
+    arch: false,
+    ornament: "full",
+    align: "center",
+    radius: "rounded-[2.25rem]",
+    portrait: "circle",
+  },
+  {
+    id: "floral-arch",
+    name: "Floral Arch Classic",
+    desc: "Karangan bunga penuh, lembut, dan sangat cocok untuk undangan yang feminin.",
+    eyebrow: "Ever After Begins",
+    strength: "Untuk pasangan yang ingin undangan manis, dekoratif, dan klasik floral dari awal sampai akhir.",
+    hero: "center",
+    petals: true,
+    leaves: true,
+    arch: true,
+    ornament: "full",
+    align: "center",
+    radius: "rounded-[2rem]",
+    portrait: "arch",
+  },
+  {
+    id: "rustic-earth",
+    name: "Rustic Earth",
+    desc: "Hangat, earthy, sederhana, dan terasa seperti pesta kebun yang intimate.",
+    eyebrow: "Gather With Love",
+    strength: "Terasa sangat akrab dan natural — cocok untuk venue kayu, kebun, atau konsep boho-rustic.",
+    hero: "stack",
+    petals: false,
+    leaves: true,
+    arch: false,
+    ornament: "light",
+    align: "left",
+    radius: "rounded-[1.75rem]",
+    portrait: "rounded",
+  },
+  {
+    id: "modern-korea",
+    name: "Modern Korea Clean",
+    desc: "Sangat bersih, lembut, elegan, dan airy ala wedding stationery Korea modern.",
+    eyebrow: "Save Our Date",
+    strength: "Paling pas untuk pasangan yang suka desain clean, soft, terang, dan sangat tertata.",
+    hero: "stack",
+    petals: false,
+    leaves: false,
+    arch: false,
+    ornament: "none",
+    align: "center",
+    radius: "rounded-[2.2rem]",
+    portrait: "rounded",
+  },
+  {
+    id: "islamic-nazra",
+    name: "Islamic Nazra",
+    desc: "Formal religius dengan ritme simetris dan rasa sakral yang kuat.",
+    eyebrow: "Bismillahirrahmanirrahim",
+    strength: "Sangat cocok untuk undangan bernuansa syar'i, religius, dan penuh adab namun tetap modern.",
+    hero: "heritage",
+    petals: false,
+    leaves: false,
+    arch: true,
+    ornament: "full",
+    align: "center",
+    radius: "rounded-[2rem]",
+    portrait: "circle",
+  },
+  {
+    id: "tropical-soiree",
+    name: "Tropical Soirée",
+    desc: "Segar, eksotis, dan berkarakter tropis untuk pesta outdoor yang cerah.",
+    eyebrow: "Island Celebration",
+    strength: "Ideal untuk wedding pantai, taman tropis, atau venue resort yang santai namun tetap chic.",
+    hero: "split",
+    petals: true,
+    leaves: true,
+    arch: false,
+    ornament: "light",
+    align: "left",
+    radius: "rounded-[2rem]",
+    portrait: "rounded",
+  },
+  {
+    id: "gebyok-heritage",
+    name: "Gebyok Heritage",
+    desc: "Megah tradisional dengan rasa gebyok, gunungan, dan detail seremoni adat yang tebal.",
+    eyebrow: "Manten Agung",
+    strength: "Paling kaya nuansa tradisional dan sangat pas untuk pasangan yang ingin aura adat kuat namun mewah.",
+    hero: "banner",
+    petals: false,
+    leaves: false,
+    arch: false,
+    ornament: "full",
+    align: "center",
+    radius: "rounded-[1.75rem]",
+    portrait: "arch",
   },
 ];
 

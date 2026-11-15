@@ -134,6 +134,46 @@ export const FONT_PRESETS: FontPreset[] = [
     query:
       "family=Cinzel:wght@400..800&family=Niconne&family=Mulish:wght@200..700",
   },
+  {
+    id: "spectral",
+    name: "Spectral · Euphoria",
+    desc: "Lembut artistik, cocok untuk theme fairytale dan floral",
+    serif: "Spectral",
+    script: "Euphoria Script",
+    sans: "Plus Jakarta Sans",
+    query:
+      "family=Spectral:ital,wght@0,300..700;1,300..700&family=Euphoria+Script&family=Plus+Jakarta+Sans:wght@200..700",
+  },
+  {
+    id: "javanese",
+    name: "Cormorant · Yesteryear",
+    desc: "Puitis tradisional, cocok untuk adat dan heritage",
+    serif: "Cormorant Garamond",
+    script: "Yesteryear",
+    sans: "Manrope",
+    query:
+      "family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Yesteryear&family=Manrope:wght@200..700",
+  },
+  {
+    id: "korean-air",
+    name: "Noto Serif · Nanum Pen",
+    desc: "Ringan, airy, dan sangat clean ala stationery Korea",
+    serif: "Noto Serif",
+    script: "Nanum Pen Script",
+    sans: "Nunito Sans",
+    query:
+      "family=Noto+Serif:ital,wght@0,300..700;1,300..700&family=Nanum+Pen+Script&family=Nunito+Sans:wght@200..700",
+  },
+  {
+    id: "amiri",
+    name: "Amiri · Marhey",
+    desc: "Religius mewah dengan rasa arabesque yang elegan",
+    serif: "Amiri",
+    script: "Marhey",
+    sans: "Cairo",
+    query:
+      "family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Marhey:wght@300..700&family=Cairo:wght@200..700",
+  },
 ];
 
 export const getFontPreset = (id: string): FontPreset =>
