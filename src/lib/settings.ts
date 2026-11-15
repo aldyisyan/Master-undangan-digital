@@ -91,6 +91,8 @@ export interface InvitationSettings {
   layout: string;
   /** id paket font (lihat lib/typography.ts) */
   fontId: string;
+  /** id template sampul (Cover) */
+  coverLayout: string;
 }
 
 /* ============================ BAWAAN ============================= */
@@ -121,6 +123,7 @@ export const DEFAULT_SETTINGS: InvitationSettings = {
   adminPin: "140626",
   layout: "klasik",
   fontId: "klasik",
+  coverLayout: "frosted-glass",
   colors: {
     ivory: "#f6f1e5",
     cream: "#fbf8ef",

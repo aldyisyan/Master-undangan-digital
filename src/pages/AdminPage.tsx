@@ -12,6 +12,7 @@ import {
 } from "../lib/settings";
 import { THEME_PRESETS, PALETTE_FIELDS } from "../lib/theme";
 import { LAYOUTS, getLayout, portraitClass } from "../lib/layouts";
+import { COVERS } from "../lib/covers";
 import { FONT_PRESETS } from "../lib/typography";
 import { clearMedia } from "../lib/mediaStore";
 import { testCloudConnection, syncToCloud, pullFromCloud, forceReplaceWishesCloud } from "../lib/cloud";
@@ -691,6 +692,41 @@ export default function AdminPage() {
                 value={draft.gallery}
                 onChange={(v) => patch({ gallery: v })}
               />
+            </Card>
+
+            <Card
+              title="Template Sampul (Cover)"
+              desc="Tampilan awal yang dilihat tamu sebelum membuka undangan."
+            >
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {COVERS.map((c) => {
+                  const active = draft.coverLayout === c.id;
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => patch({ coverLayout: c.id })}
+                      className={`rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 ${
+                        active
+                          ? "border-gold bg-cream shadow-[0_14px_30px_-14px_rgba(138,106,59,0.5)]"
+                          : "border-gold/25 bg-cream/70 hover:border-gold/60"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-1">
+                        <span className="font-serif text-[13px] font-semibold leading-tight text-forest">{c.name}</span>
+                        {active && (
+                          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold shadow-sm">
+                            <Check className="h-3 w-3 text-forest-deep" />
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-2 font-sans text-[10px] leading-relaxed text-ink/55">
+                        {c.desc}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
             </Card>
           </>
         )}
