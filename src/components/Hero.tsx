@@ -1,5 +1,7 @@
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Heart } from "lucide-react";
+// useRef / useScroll / useTransform dipakai untuk parallax foto latar hero
 import type { GuestPage } from "../lib/settings";
 import { useSettings } from "../lib/settings";
 import { useMediaSrc } from "../lib/mediaStore";
@@ -37,6 +39,11 @@ export default function Hero({ guest, opened }: Props) {
   const cinematic = L.hero === "cinematic";
   const duet = L.hero === "duet";
 
+  // parallax latar hero — foto bergerak lebih lambat dari konten
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const bgParallax = useTransform(scrollYProgress, [0, 1], ["0%", "35%"]);
+
   const Names = (
     <motion.h1 variants={item} className="font-script text-forest">
       <span className="fluid-display block break-safe">{s.bride.short}</span>
@@ -49,6 +56,7 @@ export default function Hero({ guest, opened }: Props) {
 
   return (
     <section
+      ref={heroRef}
       className={`relative flex min-h-svh flex-col overflow-hidden ${
         cinematic ? "justify-end" : split ? "justify-end sm:justify-center" : "items-center justify-center"
       }`}
@@ -60,10 +68,11 @@ export default function Hero({ guest, opened }: Props) {
             <motion.img
               initial={{ scale: 1.08 }}
               animate={opened ? { scale: 1 } : {}}
+              style={{ y: bgParallax }}
               transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
               src={cinematicPhoto}
               alt=""
-              className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+              className="pointer-events-none absolute inset-[-20%] h-[140%] w-full object-cover will-change-transform"
             />
           )}
           {!cinematicPhoto && <div className="pointer-events-none absolute inset-0 bg-forest-deep" />}
@@ -71,7 +80,7 @@ export default function Hero({ guest, opened }: Props) {
         </>
       ) : bg ? (
         <>
-          <img src={bg} alt="" className="pointer-events-none absolute inset-0 h-full w-full object-cover" />
+          <motion.img src={bg} alt="" style={{ y: bgParallax }} className="pointer-events-none absolute inset-[-20%] h-[140%] w-full object-cover will-change-transform" />
           <div
             className="pointer-events-none absolute inset-0"
             style={{ backgroundColor: "var(--pal-ivory)", opacity: dim }}

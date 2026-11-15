@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Section, { Reveal } from "./Section";
 import { useSettings } from "../lib/settings";
 import { useMediaSrc } from "../lib/mediaStore";
@@ -69,6 +70,11 @@ export default function Mempelai() {
   const s = useSettings();
   const L = getLayout(s.layout);
 
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const card1Y = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
+  const card2Y = useTransform(scrollYProgress, [0, 1], ["8%", "-8%"]);
+
   return (
     <Section
       id="mempelai"
@@ -76,23 +82,13 @@ export default function Mempelai() {
       title="Dua Insan yang Dipertemukan"
       subtitle="Atas izin Allah SWT dan restu kedua orang tua, kami akan melangsungkan pernikahan."
     >
-      <div className="grid gap-8 sm:grid-cols-2 sm:gap-6 lg:gap-10">
-        <PersonCard
-          photo={s.bride.photo}
-          name={s.bride.name}
-          role="Mempelai Wanita"
-          parents={s.bride.parents}
-          delay={0}
-          L={L}
-        />
-        <PersonCard
-          photo={s.groom.photo}
-          name={s.groom.name}
-          role="Mempelai Pria"
-          parents={s.groom.parents}
-          delay={0.16}
-          L={L}
-        />
+      <div ref={ref} className="grid gap-8 sm:grid-cols-2 sm:gap-6 lg:gap-10">
+        <motion.div style={{ y: card1Y }} className="will-change-transform">
+          <PersonCard photo={s.bride.photo} name={s.bride.name} role="Mempelai Wanita" parents={s.bride.parents} delay={0} L={L} />
+        </motion.div>
+        <motion.div style={{ y: card2Y }} className="will-change-transform">
+          <PersonCard photo={s.groom.photo} name={s.groom.name} role="Mempelai Pria" parents={s.groom.parents} delay={0.16} L={L} />
+        </motion.div>
       </div>
       <Reveal delay={0.28} className="mt-8 text-center sm:mt-10">
         <span className="fluid-script break-safe font-script text-gold-gradient">{s.hashtag}</span>

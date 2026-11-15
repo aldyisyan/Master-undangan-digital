@@ -1,4 +1,6 @@
+import { useRef } from "react";
 import { MapPin, Navigation } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Section, { Reveal } from "./Section";
 import { useSettings } from "../lib/settings";
 import { useMediaSrc } from "../lib/mediaStore";
@@ -6,6 +8,10 @@ import { useMediaSrc } from "../lib/mediaStore";
 export default function Venue() {
   const s = useSettings();
   const photo = useMediaSrc(s.venue.photo);
+
+  const venueRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: venueRef, offset: ["start end", "end start"] });
+  const photoY = useTransform(scrollYProgress, [0, 1], ["-20%", "20%"]);
 
   return (
     <Section
@@ -15,9 +21,16 @@ export default function Venue() {
       subtitle="Acara akan diselenggarakan di pendopo taman terbuka yang asri — silakan gunakan peta di bawah untuk navigasi."
     >
       <Reveal>
-        <div className="overflow-hidden rounded-2xl border border-gold/30 bg-cream shadow-[0_15px_40px_-15px_rgba(53,65,45,0.3)]">
+        <div ref={venueRef} className="overflow-hidden rounded-2xl border border-gold/30 bg-cream shadow-[0_15px_40px_-15px_rgba(53,65,45,0.3)]">
           <div className="relative h-56 overflow-hidden sm:h-64">
-            {photo && <img src={photo} alt={s.venue.name} className="h-full w-full object-cover" />}
+            {photo && (
+              <motion.img
+                src={photo}
+                alt={s.venue.name}
+                style={{ y: photoY }}
+                className="absolute inset-[-20%] h-[140%] w-full object-cover will-change-transform"
+              />
+            )}
             <span className="absolute inset-0 bg-gradient-to-t from-forest-deep/70 via-forest-deep/10 to-transparent" />
             <div className="absolute bottom-5 left-6 right-6 flex items-end justify-between gap-4">
               <div>

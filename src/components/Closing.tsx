@@ -1,3 +1,5 @@
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { HeartHandshake, Lock } from "lucide-react";
 import type { GuestPage } from "../lib/settings";
 import { useSettings } from "../lib/settings";
@@ -8,25 +10,38 @@ import { Reveal } from "./Section";
 export default function Closing({ guest }: { guest: GuestPage }) {
   const s = useSettings();
   const bg = useMediaSrc(s.backgroundImage);
+
+  const footerRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: footerRef, offset: ["start end", "end start"] });
+  const bgY   = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
+  const textY = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"]);
   // tautan QR & Panel Admin hanya tampil bagi pengantin yang sudah login,
   // tidak pernah ditampilkan kepada tamu undangan
   const isAdmin =
     typeof window !== "undefined" && sessionStorage.getItem("rk-admin-auth") === "1";
 
   return (
-    <footer className="relative overflow-hidden bg-forest-deep text-cream">
+    <footer ref={footerRef} className="relative overflow-hidden bg-forest-deep text-cream">
       {bg ? (
         <>
-          <img src={bg} alt="" className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25" />
+          <motion.img
+            src={bg}
+            alt=""
+            style={{ y: bgY }}
+            className="pointer-events-none absolute inset-[-15%] h-[130%] w-full object-cover opacity-25 will-change-transform"
+          />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-forest-deep via-forest-deep/80 to-forest-deep" />
         </>
       ) : (
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-44 rotate-180 mix-blend-luminosity opacity-25">
+        <motion.div
+          style={{ y: bgY }}
+          className="pointer-events-none absolute inset-x-0 top-0 h-44 rotate-180 mix-blend-luminosity opacity-25 will-change-transform"
+        >
           <img src="/images/flowers-arch.png" alt="" className="h-full w-full object-cover" />
-        </div>
+        </motion.div>
       )}
 
-      <div className="relative mx-auto max-w-3xl px-6 py-14 text-center sm:py-16">
+      <motion.div style={{ y: textY }} className="relative mx-auto max-w-3xl px-6 py-14 text-center sm:py-16 will-change-transform">
         <Reveal>
           <HeartHandshake className="mx-auto h-7 w-7 text-gold-light" />
           <p className="balance mt-5 font-serif text-[clamp(0.95rem,3.2vw,1.15rem)] italic leading-relaxed text-cream/85">
@@ -72,7 +87,7 @@ export default function Closing({ guest }: { guest: GuestPage }) {
             Dibuat dengan cinta · {s.bride.short} &amp; {s.groom.short} · {new Date(s.dateISO).getFullYear()}
           </p>
         </Reveal>
-      </div>
+      </motion.div>
     </footer>
   );
 }
